@@ -46,7 +46,7 @@ The default settings:
 * OrderBy ID
 * DESC
 
-The orderable options are automatically validated.  You can specify as many columns as you wish.  Values be compatible with your query.
+These options are automatically validated.  You can specify as many columns as you wish.  Queries can specify their own validation rules.
 
 ```php
 SearchableResource::make(User::query())
@@ -122,7 +122,7 @@ SearchableResource::make(User::query())
 	]);
 ```
 
-Queries can also be added by instantiating each query using the make method.  This can be useful when you need more methods and logic to determine usage.
+Second by instantiating each query using the make method.  This can be useful when you need more methods and logic to determine usage.
 
 For example let's say we have a select field query that implments it's own builder interface:
 
@@ -173,7 +173,7 @@ SearchableResource::make(User::query())
 
 ### API / JSON Resources
 
-SearchableResources are generic resources by default.  You can easily specify which resource class should be used to map your models.
+SearchableResources are generic JsonResources by default.  You can easily specify which resource class should be used to map your models when building the response.
 
 > Must extend `JsonResource`.
 
@@ -185,7 +185,7 @@ SearchableResource::make(User::query())
 
 ### Response Output
 
-The relevant query parameters and request options are appended to the output for convenience.  Two additional properties have been added to the pagination parameters to remove the need for conditionals on the client / user side. `isFirstPage` and `isLastPage` makeing pagination buttons easy to disable via props (Vue | React).
+The relevant query parameters and request options are appended to the output for convenience.  Two additional properties have been added to the pagination parameters to remove the need for conditionals on the client / user side. `isFirstPage` and `isLastPage` making pagination buttons easy to disable via props (Vue | React).
 
 > Note: If the `pagination` method is not used, all pagination related properties will be filtered from the output data.
 
