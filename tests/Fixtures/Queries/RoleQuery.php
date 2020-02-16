@@ -2,10 +2,10 @@
 
 namespace BayAreaWebPro\SearchableResource\Tests\Fixtures\Queries;
 
-use BayAreaWebPro\SearchableResource\Contracts\ConditionalQuery;
 use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\Builder;
 use BayAreaWebPro\SearchableResource\AbstractQuery;
+use BayAreaWebPro\SearchableResource\Contracts\ConditionalQuery;
 
 class RoleQuery extends AbstractQuery implements ConditionalQuery
 {

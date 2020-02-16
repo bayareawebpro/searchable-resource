@@ -27,6 +27,7 @@ class PaginationTest extends TestCase
         $this->json('get', route('paginated', [
             'per_page' => 4,
         ]))
+            ->dump()
         ->assertOk()
         ->assertJson([
             'pagination' =>[
