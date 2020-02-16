@@ -131,7 +131,7 @@ use App\Queries\SelectQuery;
 $searchable = SearchableResource::make(User::query());
 
 $searchable->query(
-	SelectQuery::make($request)
+	SelectQuery::make()
 		->field('user_role') // Request Field
 		->attribute('role')  // Table Column
 		->default('user') 	 // Default Value

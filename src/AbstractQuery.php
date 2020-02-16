@@ -10,18 +10,26 @@ use BayAreaWebPro\SearchableResource\Contracts\ValidatableQuery;
 abstract class AbstractQuery implements InvokableQuery, ValidatableQuery
 {
     protected Request $request;
+
+    /**
+     * The request field name.
+     * @var string
+     */
     protected string $field = '';
+
+    /**
+     * The model attribute name.
+     * @var string
+     */
     protected string $attribute = '';
 
     /**
-     * @param Request|null $request
+     * Static Make Method
      * @return static
      */
-    public static function make(?Request $request = null): self
+    public static function make(): self
     {
-        return app(static::class, [
-            'request' => $request,
-        ]);
+        return app(static::class);
     }
 
     /**
