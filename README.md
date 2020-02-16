@@ -29,19 +29,11 @@ composer require bayareawebpro/searchable-resource
 The ```make``` method accepts instances of Eloquent Builder.  SearchableResources implement the `Responsable` interface which allows them to be returned from controllers easily. 
 
 ```php
-<?php
 use App\User;
 use BayAreaWebPro\SearchableResource\SearchableResource;
 
-class MyController{
-
-	public function index()
-	{
-		return SearchableResource::make(User::query())->paginate(16);
-	}
-}
+return SearchableResource::make(User::query())->paginate(16);
 ```
-
 
 #### Validation
 
