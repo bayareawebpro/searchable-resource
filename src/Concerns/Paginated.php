@@ -48,7 +48,7 @@ trait Paginated{
     {
         return $this->getPerPageOptions()->map(fn($entry) => [
             'label' => Str::title("$entry / page"),
-            'value' => is_string($entry) ? Str::slug($entry) : $entry,
+            'value' => $entry,
         ]);
     }
 

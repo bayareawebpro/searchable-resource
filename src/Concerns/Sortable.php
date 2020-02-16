@@ -45,7 +45,7 @@ trait Sortable{
     {
         return $this->getSortOptions()->map(fn($entry) => [
             'label' => Str::title($entry),
-            'value' => is_string($entry) ? Str::slug($entry) : $entry,
+            'value' => $entry,
         ]);
     }
 }
