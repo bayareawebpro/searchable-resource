@@ -2,6 +2,7 @@
 
 namespace BayAreaWebPro\SearchableResource;
 
+use BayAreaWebPro\SearchableResource\Concerns\Labeled;
 use Illuminate\Contracts\Support\Responsable;
 use Illuminate\Contracts\Pagination\Paginator;
 
@@ -16,7 +17,6 @@ use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 
 use BayAreaWebPro\SearchableResource\Contracts\ConditionalQuery;
 use BayAreaWebPro\SearchableResource\Contracts\ValidatableQuery;
-use BayAreaWebPro\SearchableResource\Contracts\InvokableQuery;
 
 use BayAreaWebPro\SearchableResource\Concerns\Resourceful;
 use BayAreaWebPro\SearchableResource\Concerns\Appendable;
@@ -24,8 +24,9 @@ use BayAreaWebPro\SearchableResource\Concerns\Orderable;
 use BayAreaWebPro\SearchableResource\Concerns\Paginated;
 use BayAreaWebPro\SearchableResource\Concerns\Sortable;
 
-class SearchableResourceService implements Responsable
+class SearchableResourceBuilder implements Responsable
 {
+    use Labeled;
     use Sortable;
     use Orderable;
     use Paginated;
@@ -58,6 +59,12 @@ class SearchableResourceService implements Responsable
      * @var string
      */
     protected string $sort = 'desc';
+
+    /**
+     * Should use Labels
+     * @var bool
+     */
+    protected bool $shouldUseLabels = false;
 
     /**
      * Appendable Attributes
@@ -246,11 +253,11 @@ class SearchableResourceService implements Responsable
         /**
          * Airlock / Session Requests will receive formatted label / value pairs.
          */
-        if($this->request->hasSession()){
+        if($this->shouldUseLabels){
             return Collection::make([
-                'orderable' => $this->formatOrderableOptions()->pluck('value'),
-                'per_page'  => $this->formatPerPageOptions()->pluck('value'),
-                'sort'      => $this->formatSortOptions()->pluck('value'),
+                'orderable' => $this->formatOrderableOptions(),
+                'per_page'  => $this->formatPerPageOptions(),
+                'sort'      => $this->formatSortOptions(),
             ]);
         }
 

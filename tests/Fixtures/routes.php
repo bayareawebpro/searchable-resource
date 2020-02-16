@@ -65,3 +65,12 @@ SearchableResource::make(User::query())
         RoleQuery::class,
     ])
 ))->name('queries');
+
+/**
+ * Query Test
+ */
+Route::get('labeled', fn() => (
+SearchableResource::make(User::query())
+    ->paginate(4)
+    ->labeled()
+))->name('labeled');

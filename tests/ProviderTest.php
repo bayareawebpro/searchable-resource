@@ -3,7 +3,7 @@
 namespace BayAreaWebPro\SearchableResource\Tests;
 
 use BayAreaWebPro\SearchableResource\SearchableResource;
-use BayAreaWebPro\SearchableResource\SearchableResourceService;
+use BayAreaWebPro\SearchableResource\SearchableResourceBuilder;
 use BayAreaWebPro\SearchableResource\SearchableResourceServiceProvider;
 
 class ProviderTest extends TestCase
@@ -18,20 +18,20 @@ class ProviderTest extends TestCase
     public function test_container_can_resolve_instance()
     {
         $this->assertInstanceOf(
-            SearchableResourceService::class,
+            SearchableResourceBuilder::class,
             $this->app->make('searchable-resource'), 'Container can make instance of service.');
     }
 
     public function test_facade_can_resolve_instance()
     {
         $this->assertInstanceOf(
-            SearchableResourceService::class,
+            SearchableResourceBuilder::class,
             \SearchableResource::getFacadeRoot(), 'Facade can make instance of service.');
     }
 
     public function test_service_can_be_resolved()
     {
         $instance = app('searchable-resource');
-        $this->assertTrue($instance instanceof SearchableResourceService);
+        $this->assertTrue($instance instanceof SearchableResourceBuilder);
     }
 }

@@ -53,6 +53,6 @@ class SearchableResourceServiceProvider extends ServiceProvider
         $this->mergeConfigFrom(__DIR__.'/../config/config.php', 'searchable-resource');
 
         // Register the main class to use with the facade
-        $this->app->bind('searchable-resource', SearchableResourceService::class);
+        $this->app->bind('searchable-resource', SearchableResourceBuilder::class);
     }
 }

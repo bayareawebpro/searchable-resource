@@ -55,7 +55,7 @@ trait Orderable{
     {
         return $this->getOrderableOptions()->unique()->map(fn($entry) => [
             'label' => Str::title(str_replace('_', ' ', $entry)),
-            'value' => Str::slug($entry),
+            'value' => is_string($entry) ? Str::slug($entry) : $entry,
         ]);
     }
 }
