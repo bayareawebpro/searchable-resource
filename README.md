@@ -54,8 +54,7 @@ SearchableResource::make(User::query())
 	->sort('desc')
 	->orderable([
 		'name'
-	])
-;
+	]);
 ```
 
 ## Invokable Queries
@@ -166,9 +165,9 @@ For request fields (appended to the query in response):
 
 ```php
 SearchableResource::make(User::query())
-    ->withFields([
-        'name'
-    ]);
+	->withFields([
+		'name'
+	]);
 ```
 
 ### API / JSON Resources
@@ -209,10 +208,10 @@ The relevant query parameters and request options are appended to the output for
 	"orderable": [
 		"id", 
 		"name"
-	]
+	],
 	"sort": [
-	  "asc"
-	  "desc"
+		"asc"
+		"desc"
 	]
 }
 ```
