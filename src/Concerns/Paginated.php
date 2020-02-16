@@ -4,6 +4,7 @@ namespace BayAreaWebPro\SearchableResource\Concerns;
 
 
 use Illuminate\Contracts\Pagination\Paginator;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
@@ -58,10 +59,18 @@ trait Paginated{
      */
     protected function formatPaginator(Paginator $paginator): array
     {
-        return array_merge(Arr::except($paginator->toArray(), ['data']), [
-            'isLastPage'  => $paginator->currentPage() === $paginator->lastPage(),
+        $params = array_merge(Arr::except($paginator->toArray(), ['data']), [
             'isFirstPage' => $paginator->currentPage() === 1,
+            'isLastPage' => null
         ]);
+
+        if($paginator instanceof LengthAwarePaginator){
+            return array_merge($params, [
+                'isLastPage'  => $paginator->currentPage() === $paginator->lastPage(),
+            ]);
+        }
+
+        return $params;
     }
 
     /**

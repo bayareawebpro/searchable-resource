@@ -8,7 +8,7 @@ use BayAreaWebPro\SearchableResource\Contracts\InvokableQuery;
 use BayAreaWebPro\SearchableResource\Contracts\ValidatableQuery;
 use BayAreaWebPro\SearchableResource\Contracts\ConditionalQuery;
 
-abstract class AbstractQuery implements InvokableQuery, ValidatableQuery, ConditionalQuery
+abstract class AbstractQuery implements InvokableQuery, ValidatableQuery
 {
     protected Request $request;
     protected string $field = '';
@@ -20,7 +20,9 @@ abstract class AbstractQuery implements InvokableQuery, ValidatableQuery, Condit
      */
     public static function make(?Request $request = null): self
     {
-        return app(static::class, compact($request));
+        return app(static::class, [
+            'request' => $request
+        ]);
     }
 
     /**
@@ -41,15 +43,15 @@ abstract class AbstractQuery implements InvokableQuery, ValidatableQuery, Condit
         $builder->where($this->attribute, $this->getValue());
     }
 
-    /**
-     * Conditional Query
-     * @param Request $request
-     * @return bool
-     */
-    public function applies(Request $request): bool
-    {
-        return $request->filled($this->field);
-    }
+//    /**
+//     * Conditional Query
+//     * @param Request $request
+//     * @return bool
+//     */
+//    public function applies(Request $request): bool
+//    {
+//        return $request->filled($this->field);
+//    }
 
     /**
      * Validatable Query

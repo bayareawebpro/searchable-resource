@@ -107,7 +107,9 @@ class SearchableResourceService implements Responsable
      */
     public static function make(Builder $query): self
     {
-        return app(static::class, compact('query'));
+        return app(static::class, [
+            'query' => $query
+        ]);
     }
 
     /**
@@ -149,10 +151,9 @@ class SearchableResourceService implements Responsable
     public function query(AbstractQuery $query)
     {
         $this->withFields([$query->getField()]);
-
         if($query instanceof ConditionalQuery){
             $this->query->when($query->applies($this->request), $query);
-        }elseif($query instanceof InvokableQuery){
+        }else{
             $this->query->tap($query);
         }
         if($query instanceof ValidatableQuery) {
