@@ -35,7 +35,6 @@ class QueryTest extends TestCase
                     ['name' => 'Tester 1', 'email' => 'tester1@test.com'],
                 ],
             ], true);
-
     }
 
     public function test_search_for_name()
@@ -123,6 +122,7 @@ class QueryTest extends TestCase
                 ],
                 'query' => ['role' => 'guest'],
             ], true)
+
             ->assertJsonMissing([
                 'query' => ['search' => 'guest'],
             ], true);

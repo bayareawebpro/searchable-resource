@@ -2,11 +2,12 @@
 
 namespace BayAreaWebPro\SearchableResource\Tests\Fixtures\Queries;
 
+use BayAreaWebPro\SearchableResource\Contracts\ConditionalQuery;
 use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\Builder;
 use BayAreaWebPro\SearchableResource\AbstractQuery;
 
-class UserQuery extends AbstractQuery
+class UserQuery extends AbstractQuery implements ConditionalQuery
 {
     protected string $field = 'search';
 
