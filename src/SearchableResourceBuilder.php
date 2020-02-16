@@ -144,7 +144,7 @@ class SearchableResourceBuilder implements Responsable
             if($query instanceof AbstractQuery){
                 $this->query($query);
             }elseif(class_exists($query) && is_subclass_of($query, AbstractQuery::class)){
-                $this->query($query::make($this->request));
+                $this->query($query::make());
             }
         }
         return $this;
