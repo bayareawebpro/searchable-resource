@@ -17,7 +17,7 @@ class OptionsTest extends TestCase
         $this->json('get', route('options', []))
             ->assertJson([
                 'options' => [
-                    "option" => true,
+                    'key' => 'value'
                 ]
             ])
         ;

@@ -14,15 +14,4 @@ trait Withable{
         $this->with = array_merge($this->with, $data);
         return $this;
     }
-
-    /**
-     * With fields from the request appended to the query.
-     * @param array $requestFields
-     * @return $this
-     */
-    public function withFields(array $requestFields): self
-    {
-        $this->fields = array_merge($this->fields, $requestFields);
-        return $this;
-    }
 }

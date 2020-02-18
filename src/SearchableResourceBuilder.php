@@ -168,7 +168,7 @@ class SearchableResourceBuilder implements Responsable
      */
     public function query(AbstractQuery $query)
     {
-        $this->withFields([$query->getField()]);
+        $this->fields([$query->getField()]);
         if ($query instanceof ConditionalQuery) {
             $this->query->when($query->applies(), $query);
         } else {

@@ -27,7 +27,7 @@ SearchableResource::make(User::query())
     ->appendable([
         'test',
     ])
-    ->withFields([
+    ->fields([
         'name',
     ])
 ))->name('appendable');

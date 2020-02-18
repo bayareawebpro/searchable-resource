@@ -73,13 +73,23 @@ SearchableResource::make(User::query())
         RoleFilter::class
     ])
     ->orderable([
-        'id',
-        'name', 'email', 'role',
+        'id', 'name', 'email', 'role',
         'created_at', 'updated_at',
     ])
     ->appendable([
         'created_for_humans',
         'updated_for_humans',
+    ])
+    ->select([
+        'id',
+        'name', 'email', 'role',
+        'created_at', 'updated_at',
+    ])
+    ->fields([
+       'my_filter_key'
+    ])
+    ->with([
+        'my_key' => true
     ])
     ->orderBy('updated_at')
     ->sort('desc')
@@ -218,27 +228,33 @@ SearchableResource::make(User::query())
 ```
 
 Second by instantiating each query using the make method.  This can be useful when you need 
-more methods and logic to determine usage. For example let's say we have a select field 
+more methods and logic to determine usage. 
+
+```php
+$searchable = SearchableResource::make(User::query());
+```
+
+### ProvidesOptions
+
+Queries can provide options that will be appended to the request options 
+data by implementing the `ProvidesOptions` contract.
+
+For example let's say we have a select field 
 query that implements it's own builder interface:
 
 ```php
 use App\Queries\SelectQuery;
 
-$searchable = SearchableResource::make(User::query());
-
-$searchable->query(
-	SelectQuery::make()
-		->field('user_role') // Request Field
-		->attribute('role')  // Table Column
-		->default('user') 	 // Default Value
-		->options([
-			'user', 'editor','admin' //Rule (in)
-		])
-);
-
-
-return $searchable;
-
+SearchableResource::make(User::query())
+    ->query(
+        SelectQuery::make()
+            ->field('user_role') // Request Field
+            ->attribute('role')  // Table Column
+            ->default('user') 	 // Default Value
+            ->options([
+                'user', 'editor','admin' //Rule (in)
+            ])
+    );
 ```
 
 ### Appendable Data
@@ -260,8 +276,8 @@ SearchableResource::make(User::query())
 
 ```php
 SearchableResource::make(User::query())
-	->withFields([
-		'name'
+	->fields([
+		'my_filter_state'
 	]);
 ```
 
