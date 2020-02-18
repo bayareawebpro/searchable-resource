@@ -99,6 +99,19 @@ SearchableResource::make(User::query())
 
 ---
 
+### API / JSON Resources
+
+SearchableResources are generic JsonResources by default.  You can easily specify 
+which resource class should be used to map your models when building the response.
+
+> Must extend `JsonResource`.
+
+```php
+SearchableResource::make(User::query())
+    ->resource(UserResource::class);
+```
+---
+
 ### Validation
 
 Queries can specify their own validation rules by implementing the `ValidatableQuery` 
@@ -237,7 +250,8 @@ $searchable = SearchableResource::make(User::query());
 ### ProvidesOptions
 
 Queries can provide options that will be appended to the request options 
-data by implementing the `ProvidesOptions` contract.
+data by implementing the `ProvidesOptions` contract.  
+This method should return a flat array of values.
 
 For example let's say we have a select field 
 query that implements it's own builder interface:
@@ -257,6 +271,8 @@ SearchableResource::make(User::query())
     );
 ```
 
+---
+
 ### Appendable Data
 
 Attributes and fields can be appended to the response by using the following methods: 
@@ -272,26 +288,62 @@ SearchableResource::make(User::query())
     ]);
 ```
 
+**For additional data (appended to the response):** 
+
+```php
+SearchableResource::make(User::query())
+    ->with([
+        'my_key' => []
+    ]);
+```
+
+```json
+{
+    "my_key": [],
+    "data": []
+}
+```
+
 **For request fields (appended to the query in response):** 
 
 ```php
 SearchableResource::make(User::query())
-	->fields([
-		'my_filter_state'
-	]);
+    ->fields([
+        'my_filter_state'
+    ]);
 ```
 
-### API / JSON Resources
+```json
+{
+    "query": {
+        "my_filter_state": true
+    }
+}
+```
 
-SearchableResources are generic JsonResources by default.  You can easily specify 
-which resource class should be used to map your models when building the response.
 
-> Must extend `JsonResource`.
+### Options Formatting
 
-```php
-SearchableResource::make(User::query())
-	->resource(UserResource::class)
-	->paginate(8);
+Request options are appended to the output for convenience.  Options can 
+be auto-formatted with labels for usage with forms and filters by calling 
+the `labeled()` method on the builder.
+
+```
+"options": {
+    "orderable": [
+        {
+            "value": "my_field" 
+            "label": "My Field"
+        },
+    ]
+    "sort": [
+        {
+            "value": "asc" 
+            "label": "Asc"
+        },
+    ]
+}
+
 ```
 
 ### Response Output
@@ -306,72 +358,32 @@ making pagination buttons easy to disable via props (Vue | React).
 
 ```
 "data": [
-	//
+    //
 ],
 "pagination": {
-	"isFirstPage": true,
-	"isLastPage": true,
-	...default pagination props...
+    "isFirstPage": true,
+    "isLastPage": true,
+    ...default pagination props...
 },
 "query": {
-	"page": 1,
-	"sort": "desc",
-	"order_by": "id",	
-	"search": "term",
-	"per_page": 4,	
+    "page": 1,
+    "sort": "desc",
+    "order_by": "id",	
+    "search": "term",
+    "per_page": 4,	
 },
 "options": {
-	"orderable": [
-		"id", 
-		"name"
-	],
-	"sort": [
-		"asc"
-		"desc"
-	]
+    "orderable": [
+        "id", 
+        "name"
+    ],
+    "sort": [
+        "asc"
+        "desc"
+    ]
 }
 ```
 
-### With Additional Data
-
-```php
-SearchableResource::make(User::query())
-	->with([
-        'my_key' => []
-    ])
-	->paginate(8);
-```
-
-```json
-{
-    "my_key": [],
-    "data": []
-}
-```
-
-### Options Formatting
-
-Request options are appended to the output for convenience.  Options can 
-be auto-formatted with labels for usage with forms and filters by calling 
-the `labeled()` method on the builder.
-
-```
-"options": {
-	"orderable": [
-		{
-			"value": "my_field" 
-			"label": "My Field"
-		},
-	]
-	"sort": [
-		{
-			"value": "asc" 
-			"label": "Asc"
-		},
-	]
-}
-
-```
 
 
 ### Vue Components Example
