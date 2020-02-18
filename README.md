@@ -119,24 +119,6 @@ SearchableResource::make(User::query())
 
 ---
 
-### Validation
-
-Queries can specify their own validation rules by implementing the `ValidatableQuery` 
-contract.  The following rules are automatically merged into the collected rules 
-from your queries.  
-
-```php
-[
-    'search'   => ['sometimes', 'nullable', 'string', 'max:255'],
-    'page'     => ['sometimes', 'numeric', 'min:1', 'max:'.PHP_INT_MAX],
-    'sort'     => ['sometimes', 'string', Rule::in($this->getSortOptions()->all())],
-    'order_by' => ['sometimes', 'string', Rule::in($this->getOrderableOptions()->all())],
-    'per_page' => ['sometimes', 'numeric', Rule::in($this->getPerPageOptions()->all())],
-];
-```
-
----
-
 ### Invokable Queries
 
 Queries are expressed as invokable classes that extend the `AbstractQuery` class 
@@ -201,6 +183,24 @@ class ConditionalRoleQuery extends AbstractQuery implements ConditionalQuery
 }
 ```
 
+---
+
+### Validation
+
+Queries can specify their own validation rules by implementing the `ValidatableQuery` 
+contract.  The following rules are automatically merged into the collected rules 
+from your queries.  
+
+```php
+[
+    'search'   => ['sometimes', 'nullable', 'string', 'max:255'],
+    'page'     => ['sometimes', 'numeric', 'min:1', 'max:'.PHP_INT_MAX],
+    'sort'     => ['sometimes', 'string', Rule::in($this->getSortOptions()->all())],
+    'order_by' => ['sometimes', 'string', Rule::in($this->getOrderableOptions()->all())],
+    'per_page' => ['sometimes', 'numeric', Rule::in($this->getPerPageOptions()->all())],
+];
+```
+
 ### ValidatableQuery Contract
 
 Queries that implement the `ValidatableQuery` Contract will have their returned rules 
@@ -259,7 +259,6 @@ SearchableResource::make(User::query())
     );
 ```
 
-
 ```php
 <?php declare(strict_types=1);
 
@@ -311,6 +310,44 @@ value which can be used to enable when the request has a session.
     ]
 }
 ```
+
+### FormatsOptions Contract
+
+You can override the default formatter by specifying a formatter instance.
+
+```php
+SearchableResource::make(User::query())
+    ->useFormatter(new OptionsFormatter);
+```
+
+```php
+<?php declare(strict_types=1);
+
+namespace App\Http\Resources;
+
+use BayAreaWebPro\SearchableResource\Contracts\FormatsOptions;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
+
+class OptionsFormatter implements FormatsOptions {
+
+    public function __invoke(string $key, Collection $options): Collection
+    {
+        if($key === 'per_page'){
+            return $options->map(fn($value, $key)=>[
+                'label' => "$value / Page",
+                'value' => $value,
+            ]);
+        }
+        return $options->map(fn($value, $key)=>[
+            'label' => Str::title(str_replace("_", " ", "$value")),
+            'value' => $value,
+        ]);
+    }
+}
+```
+
+---
 
 ### Adding Queries:
 

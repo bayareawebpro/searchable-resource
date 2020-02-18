@@ -1,5 +1,6 @@
 <?php
 
+use BayAreaWebPro\SearchableResource\OptionsFormatter;
 use BayAreaWebPro\SearchableResource\SearchableResource;
 use BayAreaWebPro\SearchableResource\SearchableResourceBuilder;
 use BayAreaWebPro\SearchableResource\Tests\Fixtures\Models\User;
@@ -73,6 +74,8 @@ SearchableResource::make(User::query())
  */
 Route::get('labeled', fn() => (
 SearchableResource::make(User::query())
+    ->query(OptionsQuery::make())
+    ->useFormatter(new OptionsFormatter)
     ->paginate(4)
     ->labeled()
 ))->name('labeled');

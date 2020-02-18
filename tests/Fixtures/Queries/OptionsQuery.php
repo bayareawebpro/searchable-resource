@@ -7,12 +7,14 @@ use BayAreaWebPro\SearchableResource\AbstractQuery;
 
 class OptionsQuery extends AbstractQuery implements ProvidesOptions
 {
-    protected string $field = 'search';
+    protected string $field = 'option';
 
     public function options(): array
     {
         return [
-            'key' => 'value',
+            $this->getField() => [
+                'my_option'
+            ],
         ];
     }
 }

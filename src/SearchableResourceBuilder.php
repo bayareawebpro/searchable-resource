@@ -2,6 +2,7 @@
 
 namespace BayAreaWebPro\SearchableResource;
 
+use BayAreaWebPro\SearchableResource\Contracts\FormatsOptions;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Database\Eloquent\Builder;
@@ -30,7 +31,7 @@ use BayAreaWebPro\SearchableResource\Concerns\Optional;
 use BayAreaWebPro\SearchableResource\Concerns\Labeled;
 use BayAreaWebPro\SearchableResource\Concerns\Withable;
 use BayAreaWebPro\SearchableResource\Concerns\Whenable;
-
+use Closure;
 
 class SearchableResourceBuilder implements Responsable
 {
@@ -98,6 +99,12 @@ class SearchableResourceBuilder implements Responsable
      * @var string
      */
     protected string $resource = JsonResource::class;
+
+    /**
+     * Options Formatter
+     * @var FormatsOptions
+     */
+    protected FormatsOptions $formatter;
 
     /**
      * With Additional Data in Response
@@ -170,7 +177,6 @@ class SearchableResourceBuilder implements Responsable
      */
     public function query(AbstractQuery $query)
     {
-        $this->fields([$query->getField()]);
         if ($query instanceof ConditionalQuery) {
             $this->query->when($query->applies(), $query);
         } else {
@@ -184,6 +190,7 @@ class SearchableResourceBuilder implements Responsable
         if ($query instanceof ProvidesOptions) {
             $this->options($query->options());
         }
+        $this->fields([$query->getField()]);
         return $this;
     }
 
@@ -219,21 +226,26 @@ class SearchableResourceBuilder implements Responsable
          * Formatted label / value assoc. arrays
          */
         if ($this->labeled) {
-            return Collection::make(array_merge($this->options, [
-                'orderable' => $this->formatOrderableOptions()->all(),
-                'per_page'  => $this->formatPerPageOptions()->all(),
-                'sort'      => $this->formatSortOptions()->all(),
-            ]));
+
+            $options = Collection::make($this->options)
+                ->map(fn($options, $key) => $this->formatOptions($key, Collection::make($options))->unique()->all())
+                ->all();
+
+            return Collection::make(array_merge([
+                'orderable' => $this->formatOptions('orderable', $this->getOrderableOptions())->all(),
+                'per_page'  => $this->formatOptions('per_page', $this->getPerPageOptions())->all(),
+                'sort'      => $this->formatOptions('sort', $this->getSortOptions())->all(),
+            ], $options));
         }
 
         /**
          * Raw values arrays
          */
-        return Collection::make(array_merge($this->options, [
+        return Collection::make(array_merge([
             'orderable' => $this->getOrderableOptions()->all(),
             'per_page'  => $this->getPerPageOptions()->all(),
             'sort'      => $this->getSortOptions()->all(),
-        ]));
+        ], $this->options));
     }
 
     /**

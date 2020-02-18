@@ -15,36 +15,36 @@ class SearchableResourceServiceProvider extends ServiceProvider
         /*
          * Optional methods to load your package assets
          */
-        // $this->loadTranslationsFrom(__DIR__.'/../resources/lang', 'query-resource');
-        // $this->loadViewsFrom(__DIR__.'/../resources/views', 'query-resource');
+         $this->loadTranslationsFrom(__DIR__.'/../lang', 'searchable-resource');
+        // $this->loadViewsFrom(__DIR__.'/../resources/views', 'searchable-resource');
         // $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
         // $this->loadRoutesFrom(__DIR__.'/routes.php');
 
         if ($this->app->runningInConsole()) {
 
+            // Registering package commands.
+            $this->commands([
+                MakeQueryCommand::class
+            ]);
+
             $this->publishes([
-                __DIR__.'/../config/config.php' => config_path('query-resource.php'),
+                __DIR__.'/../config/config.php' => config_path('searchable-resource.php'),
             ], 'config');
+
+            // Publishing the translation files.
+            $this->publishes([
+                __DIR__.'/../lang' => resource_path('lang/vendor/searchable-resource'),
+            ], 'lang');
 
             // Publishing the views.
             /*$this->publishes([
-                __DIR__.'/../resources/views' => resource_path('views/vendor/query-resource'),
+                __DIR__.'/../resources/views' => resource_path('views/vendor/searchable-resource'),
             ], 'views');*/
 
             // Publishing assets.
             /*$this->publishes([
-                __DIR__.'/../resources/assets' => public_path('vendor/query-resource'),
+                __DIR__.'/../resources/assets' => public_path('vendor/searchable-resource'),
             ], 'assets');*/
-
-            // Publishing the translation files.
-            /*$this->publishes([
-                __DIR__.'/../resources/lang' => resource_path('lang/vendor/query-resource'),
-            ], 'lang');*/
-
-            // Registering package commands.
-             $this->commands([
-                 MakeQueryCommand::class
-             ]);
         }
     }
 

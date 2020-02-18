@@ -34,18 +34,9 @@ trait Sortable{
      */
     protected function getSortOptions(): Collection
     {
-        return Collection::make(['asc', 'desc']);
-    }
-
-    /**
-     * Get formatted sort direction options.
-     * @return Collection
-     */
-    protected function formatSortOptions(): Collection
-    {
-        return $this->getSortOptions()->map(fn($entry) => [
-            'label' => Str::title($entry),
-            'value' => $entry,
+        return Collection::make([
+            'asc',
+            'desc'
         ]);
     }
 }

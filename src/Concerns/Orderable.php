@@ -46,16 +46,4 @@ trait Orderable{
     {
         return Collection::make($this->orderable);
     }
-
-    /**
-     * Get orderable field options.
-     * @return Collection
-     */
-    protected function formatOrderableOptions(): Collection
-    {
-        return $this->getOrderableOptions()->unique()->map(fn($entry) => [
-            'label' => Str::title(str_replace('_', ' ', $entry)),
-            'value' => $entry,
-        ]);
-    }
 }
