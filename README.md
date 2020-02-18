@@ -19,7 +19,47 @@ You can install the package via composer:
 composer require bayareawebpro/searchable-resource
 ```
 
-## Usage
+---
+
+### Basic Usage
+
+SearchableResources implement the `Responsable` interface which allows them to be 
+returned from controllers easily. 
+
+The ```make``` method accepts instances of Eloquent Builder.  
+
+```php
+
+use App\User;
+use App\Post;
+
+use BayAreaWebPro\SearchableResource\SearchableResource;
+
+SearchableResource::make(User::query());
+
+SearchableResource::make(Post::forUser(request()->user()));
+```
+
+### Ordering and Sorting
+
+You can specify as many orderable columns as you wish.
+
+```php
+SearchableResource::make(User::query())
+	->orderable(['name', 'email'])
+	->orderBy('name')
+	->sort('desc')
+	->paginate(16);
+```
+
+The default settings:
+
+* order_by ID
+* sort DESC
+
+---
+
+### Full Example
 
 ```php
 use App\User;
@@ -49,45 +89,26 @@ SearchableResource::make(User::query())
     ->labeled();
 ```
 
-* Sorting ```/my-route?sort=asc```
-* Filtering ```/my-route?role=admin```
-* Ordering```/my-route?order_by=name```
-* Searching ```/my-route?search=Taylor```
-* Pagination ```/my-route?page=1&per_page=8```
+---
 
-The ```make``` method accepts instances of Eloquent Builder.  SearchableResources 
-implement the `Responsable` interface which allows them to be returned from controllers easily. 
+### Validation
+
+Queries can specify their own validation rules.  The following rules are 
+automatically merged into the collected rules from your queries.  
 
 ```php
-use App\User;
-use BayAreaWebPro\SearchableResource\SearchableResource;
-
-return SearchableResource::make(User::query())->paginate(16);
+[
+    'search'   => ['sometimes', 'nullable', 'string', 'max:255'],
+    'page'     => ['sometimes', 'numeric', 'min:1', 'max:'.PHP_INT_MAX],
+    'sort'     => ['sometimes', 'string', Rule::in($this->getSortOptions()->all())],
+    'order_by' => ['sometimes', 'string', Rule::in($this->getOrderableOptions()->all())],
+    'per_page' => ['sometimes', 'numeric', Rule::in($this->getPerPageOptions()->all())],
+];
 ```
 
-#### Validation
+---
 
-Validation is compiled from your queries and options.
-
-#### Ordering and Sorting
-
-The default settings:
-
-* OrderBy ID
-* DESC
-
-These options are automatically validated.  You can specify as many columns 
-as you wish.  Queries can specify their own validation rules.
-
-```php
-SearchableResource::make(User::query())
-	->orderable(['name', 'email'])
-	->orderBy('name')
-	->sort('desc')
-    ->paginate(16);
-```
-
-## Invokable Queries
+### Invokable Queries
 
 Queries are expressed as invokable classes which contain logic per request 
 field.  Queries can apply to multiple attributes but should pertain to a 

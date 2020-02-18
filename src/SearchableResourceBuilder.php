@@ -127,6 +127,7 @@ class SearchableResourceBuilder implements Responsable
     {
         return array_merge($this->rules, [
             'search'   => ['sometimes', 'nullable', 'string', 'max:255'],
+            'page'     => ['sometimes', 'numeric', 'min:1', 'max:'.PHP_INT_MAX],
             'sort'     => ['sometimes', 'string', Rule::in($this->getSortOptions()->all())],
             'order_by' => ['sometimes', 'string', Rule::in($this->getOrderableOptions()->all())],
             'per_page' => ['sometimes', 'numeric', Rule::in($this->getPerPageOptions()->all())],
