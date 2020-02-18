@@ -471,7 +471,9 @@ Useful for configuring the builder via an invokable class.
 
 ```php
 
-class UserSearchable{
+use BayAreaWebPro\SearchableResource\SearchableBuilder;
+use BayAreaWebPro\SearchableResource\Contracts\InvokableBuilder;
+class UserSearchable implements InvokableBuilder{
     public function __invoke(SearchableBuilder $builder): void 
     {
         $builder->queries([
@@ -480,9 +482,7 @@ class UserSearchable{
     }
 }
 
-SearchableResource::make(User::query())
-    ->tap(new UserSearchable)
-;
+SearchableResource::make(User::query())->tap(new UserSearchable);
 ```
 
 ---
