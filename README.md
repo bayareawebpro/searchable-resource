@@ -227,6 +227,30 @@ class ConditionalRoleQuery extends AbstractQuery implements ValidatableQuery
 }
 ```
 
+### ProvidesOptions Contract
+
+Queries can provide options that will be appended to the request options 
+data by implementing the `ProvidesOptions` contract.  This method should return 
+a flat array of values that are injected into the response query options data.
+
+For example let's say we have a select field 
+query that implements it's own builder interface:
+
+```php
+use App\Queries\SelectQuery;
+
+SearchableResource::make(User::query())
+    ->query(
+        SelectQuery::make()
+            ->field('user_role') // Request Field
+            ->attribute('role')  // Table Column
+            ->default('user') 	 // Default Value
+            ->options([
+                'user', 'editor','admin' //Rule (in)
+            ])
+    );
+```
+
 ### Adding Queries:
 
 Queries can be added two ways.  First by referencing the class string for easy bulk usage.
@@ -245,30 +269,6 @@ more methods and logic to determine usage.
 
 ```php
 $searchable = SearchableResource::make(User::query());
-```
-
-### ProvidesOptions
-
-Queries can provide options that will be appended to the request options 
-data by implementing the `ProvidesOptions` contract.  
-This method should return a flat array of values.
-
-For example let's say we have a select field 
-query that implements it's own builder interface:
-
-```php
-use App\Queries\SelectQuery;
-
-SearchableResource::make(User::query())
-    ->query(
-        SelectQuery::make()
-            ->field('user_role') // Request Field
-            ->attribute('role')  // Table Column
-            ->default('user') 	 // Default Value
-            ->options([
-                'user', 'editor','admin' //Rule (in)
-            ])
-    );
 ```
 
 ---
