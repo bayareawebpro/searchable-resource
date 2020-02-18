@@ -2,39 +2,40 @@
 
 namespace BayAreaWebPro\SearchableResource;
 
-use Illuminate\Http\{
-    Request, JsonResponse
-};
-use Illuminate\Database\Eloquent\{
-    Collection as EloquentCollection, Builder
-};
+use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 
 use Illuminate\Support\Collection;
+use Illuminate\Support\Traits\Macroable;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Symfony\Component\HttpFoundation\Response;
 
 use Illuminate\Contracts\Support\Responsable;
 use Illuminate\Contracts\Pagination\Paginator;
 
-use BayAreaWebPro\SearchableResource\Contracts\{
-    ConditionalQuery, ValidatableQuery, ProvidesOptions
-};
+use BayAreaWebPro\SearchableResource\Contracts\ValidatableQuery;
+use BayAreaWebPro\SearchableResource\Contracts\ConditionalQuery;
+use BayAreaWebPro\SearchableResource\Contracts\ProvidesOptions;
 
-use BayAreaWebPro\SearchableResource\Concerns\{
-    Resourceful,
-    Validatable,
-    Appendable,
-    Orderable,
-    Paginated,
-    Selectable,
-    Sortable,
-    Labeled,
-    Optional,
-    Withable
-};
+use BayAreaWebPro\SearchableResource\Concerns\Resourceful;
+use BayAreaWebPro\SearchableResource\Concerns\Validatable;
+use BayAreaWebPro\SearchableResource\Concerns\Appendable;
+use BayAreaWebPro\SearchableResource\Concerns\Selectable;
+use BayAreaWebPro\SearchableResource\Concerns\Orderable;
+use BayAreaWebPro\SearchableResource\Concerns\Paginated;
+use BayAreaWebPro\SearchableResource\Concerns\Sortable;
+use BayAreaWebPro\SearchableResource\Concerns\Optional;
+use BayAreaWebPro\SearchableResource\Concerns\Labeled;
+use BayAreaWebPro\SearchableResource\Concerns\Withable;
+use BayAreaWebPro\SearchableResource\Concerns\Whenable;
+
 
 class SearchableResourceBuilder implements Responsable
 {
+    use Macroable;
+
     use Resourceful;
     use Validatable;
     use Appendable;
@@ -44,6 +45,7 @@ class SearchableResourceBuilder implements Responsable
     use Sortable;
     use Optional;
     use Withable;
+    use Whenable;
     use Labeled;
 
     protected Request $request;
