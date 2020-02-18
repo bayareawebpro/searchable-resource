@@ -2,12 +2,13 @@
 
 namespace BayAreaWebPro\SearchableResource\Tests\Fixtures\Queries;
 
-use BayAreaWebPro\SearchableResource\Contracts\ConditionalQuery;
 use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\Builder;
 use BayAreaWebPro\SearchableResource\AbstractQuery;
+use BayAreaWebPro\SearchableResource\Contracts\ConditionalQuery;
+use BayAreaWebPro\SearchableResource\Contracts\ValidatableQuery;
 
-class UserQuery extends AbstractQuery implements ConditionalQuery
+class UserQuery extends AbstractQuery implements ConditionalQuery, ValidatableQuery
 {
     protected string $field = 'search';
 
@@ -20,7 +21,7 @@ class UserQuery extends AbstractQuery implements ConditionalQuery
         );
     }
 
-    public function rules(?Request $request = null): array
+    public function rules(): array
     {
         return [
             [$this->field => 'sometimes|string|max:255'],

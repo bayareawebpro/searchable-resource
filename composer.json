@@ -3,7 +3,9 @@
     "description": "Searchable Resource Builder for Laravel",
     "keywords": [
         "bayareawebpro",
-        "searchable-resource"
+        "searchable",
+        "resource",
+        "laravel"
     ],
     "homepage": "https://github.com/bayareawebpro/searchable-resource",
     "license": "MIT",
