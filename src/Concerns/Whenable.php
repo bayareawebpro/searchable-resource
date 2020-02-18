@@ -12,9 +12,9 @@ trait Whenable{
      * @param Closure $closure
      * @return $this
      */
-    public function when(bool $condition, Closure $closure): self
+    public function when(bool $condition, $closure): self
     {
-        if($condition){
+        if($condition && is_callable($closure)){
             call_user_func($closure, $this);
         }
         return $this;
