@@ -2,31 +2,32 @@
 
 namespace BayAreaWebPro\SearchableResource\Concerns;
 
-use Closure;
-
 trait Whenable{
 
     /**
      * When true, callback with builder instance.
      * @param bool $condition
-     * @param Closure $closure
+     * @param $callback
      * @return $this
      */
-    public function when(bool $condition, $closure): self
+    public function when($condition, $callback): self
     {
-        if($condition && is_callable($closure)){
-            call_user_func($closure, $this);
+        if($condition){
+            return $this->tap($callback);
         }
         return $this;
     }
 
     /**
      * When true, callback with builder instance.
-     * @param Closure $closure
+     * @param $callback
      * @return $this
      */
-    public function tap($closure): self
+    public function tap($callback): self
     {
-        return $this->when(true, $closure);
+        if(is_callable($callback)){
+            call_user_func($callback, $this);
+        }
+        return $this;
     }
 }

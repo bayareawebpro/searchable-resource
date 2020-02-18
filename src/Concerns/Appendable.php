@@ -16,6 +16,17 @@ trait Appendable{
     }
 
     /**
+     * With fields from the request appended to the query.
+     * @param array $requestFields
+     * @return $this
+     */
+    public function fields(array $requestFields): self
+    {
+        $this->fields = array_merge($this->fields, $requestFields);
+        return $this;
+    }
+
+    /**
      * Append model attributes.
      * @param array $items
      * @return array
@@ -28,16 +39,5 @@ trait Appendable{
             }
         }
         return $items;
-    }
-
-    /**
-     * With fields from the request appended to the query.
-     * @param array $requestFields
-     * @return $this
-     */
-    public function fields(array $requestFields): self
-    {
-        $this->fields = array_merge($this->fields, $requestFields);
-        return $this;
     }
 }
