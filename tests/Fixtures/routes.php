@@ -67,10 +67,23 @@ SearchableResource::make(User::query())
 ))->name('queries');
 
 /**
- * Query Test
+ * Labeled Test
  */
 Route::get('labeled', fn() => (
 SearchableResource::make(User::query())
     ->paginate(4)
     ->labeled()
 ))->name('labeled');
+
+/**
+ * Validation Test
+ */
+Route::get('validation', fn() => (
+SearchableResource::make(User::query())
+    ->paginate(4)
+    ->queries([
+        UserQuery::class,
+        RoleQuery::class,
+    ])
+    ->labeled()
+))->name('validation');

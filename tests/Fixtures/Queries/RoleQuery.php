@@ -2,12 +2,12 @@
 
 namespace BayAreaWebPro\SearchableResource\Tests\Fixtures\Queries;
 
-use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\Builder;
 use BayAreaWebPro\SearchableResource\AbstractQuery;
 use BayAreaWebPro\SearchableResource\Contracts\ConditionalQuery;
+use BayAreaWebPro\SearchableResource\Contracts\ValidatableQuery;
 
-class RoleQuery extends AbstractQuery implements ConditionalQuery
+class RoleQuery extends AbstractQuery implements ConditionalQuery, ValidatableQuery
 {
     protected string $field = 'role';
 
@@ -16,7 +16,7 @@ class RoleQuery extends AbstractQuery implements ConditionalQuery
         $builder->where('role', $this->getValue());
     }
 
-    public function rules(?Request $request = null): array
+    public function rules(): array
     {
         return [
             [$this->field => 'sometimes|string|in:admin,editor,guest'],

@@ -5,9 +5,8 @@ namespace BayAreaWebPro\SearchableResource;
 use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\Builder;
 use BayAreaWebPro\SearchableResource\Contracts\InvokableQuery;
-use BayAreaWebPro\SearchableResource\Contracts\ValidatableQuery;
 
-abstract class AbstractQuery implements InvokableQuery, ValidatableQuery
+abstract class AbstractQuery implements InvokableQuery
 {
     protected Request $request;
 
@@ -52,23 +51,21 @@ abstract class AbstractQuery implements InvokableQuery, ValidatableQuery
 
     /**
      * Conditional Query
-     * @param Request $request
      * @return bool
      */
-    public function applies(Request $request): bool
+    public function applies(): bool
     {
-        return $request->filled($this->field);
+        return $this->request->filled($this->field);
     }
 
     /**
      * Validatable Query
-     * @param Request|null $request
      * @return array
      */
-    public function rules(?Request $request = null): array
+    public function rules(): array
     {
         return [
-            //[$this->field => ['required']],
+            [$this->field => ['required']],
         ];
     }
 

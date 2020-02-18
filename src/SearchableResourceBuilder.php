@@ -2,14 +2,13 @@
 
 namespace BayAreaWebPro\SearchableResource;
 
-use BayAreaWebPro\SearchableResource\Concerns\Labeled;
 use Illuminate\Contracts\Support\Responsable;
 use Illuminate\Contracts\Pagination\Paginator;
 
 use Illuminate\Http\Request;
-use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Collection;
 use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Http\Resources\Json\JsonResource;
 
 use Illuminate\Validation\Rule;
 use Illuminate\Database\Eloquent\Builder;
@@ -23,6 +22,7 @@ use BayAreaWebPro\SearchableResource\Concerns\Appendable;
 use BayAreaWebPro\SearchableResource\Concerns\Orderable;
 use BayAreaWebPro\SearchableResource\Concerns\Paginated;
 use BayAreaWebPro\SearchableResource\Concerns\Sortable;
+use BayAreaWebPro\SearchableResource\Concerns\Labeled;
 
 class SearchableResourceBuilder implements Responsable
 {
@@ -144,7 +144,7 @@ class SearchableResourceBuilder implements Responsable
             if($query instanceof AbstractQuery){
                 $this->query($query);
             }elseif(class_exists($query) && is_subclass_of($query, AbstractQuery::class)){
-                $this->query($query::make());
+                $this->query(app($query));
             }
         }
         return $this;
@@ -159,12 +159,12 @@ class SearchableResourceBuilder implements Responsable
     {
         $this->withFields([$query->getField()]);
         if($query instanceof ConditionalQuery){
-            $this->query->when($query->applies($this->request), $query);
+            $this->query->when($query->applies(), $query);
         }else{
             $this->query->tap($query);
         }
         if($query instanceof ValidatableQuery) {
-            foreach ($query->rules($this->request) as $rule) {
+            foreach ($query->rules() as $rule) {
                 $this->withRules($rule);
             }
         }
@@ -251,23 +251,23 @@ class SearchableResourceBuilder implements Responsable
     protected function getOptions(): Collection
     {
         /**
-         * Airlock / Session Requests will receive formatted label / value pairs.
+         * Formatted label / value assoc. arrays
          */
         if($this->shouldUseLabels){
             return Collection::make([
-                'orderable' => $this->formatOrderableOptions(),
-                'per_page'  => $this->formatPerPageOptions(),
-                'sort'      => $this->formatSortOptions(),
+                'orderable' => $this->formatOrderableOptions()->all(),
+                'per_page'  => $this->formatPerPageOptions()->all(),
+                'sort'      => $this->formatSortOptions()->all(),
             ]);
         }
 
         /**
-         * API Requests only get the values.
+         * Raw values arrays
          */
         return Collection::make([
-            'orderable' => $this->getOrderableOptions(),
-            'per_page'  => $this->getPerPageOptions(),
-            'sort'      => $this->getSortOptions(),
+            'orderable' => $this->getOrderableOptions()->all(),
+            'per_page'  => $this->getPerPageOptions()->all(),
+            'sort'      => $this->getSortOptions()->all(),
         ]);
     }
 }
