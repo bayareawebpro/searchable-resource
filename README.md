@@ -8,7 +8,9 @@
 Searchable Resource Builder is an abstraction for building 
 searchable resource responses in Laravel applications.
 
-Extract query logic into reusable chunks while using a fluent builder interface for dealing with searchable / filterable / sortable requests and JSON / API Resources.
+Extract query logic into reusable chunks while using a fluent builder 
+interface for dealing with searchable / filterable / sortable requests 
+and JSON / API Resources.
 
 ## Installation
 You can install the package via composer:
@@ -26,7 +28,8 @@ composer require bayareawebpro/searchable-resource
 * Pagination ```/my-route?page=1&per_page=8```
 
 
-The ```make``` method accepts instances of Eloquent Builder.  SearchableResources implement the `Responsable` interface which allows them to be returned from controllers easily. 
+The ```make``` method accepts instances of Eloquent Builder.  SearchableResources 
+implement the `Responsable` interface which allows them to be returned from controllers easily. 
 
 ```php
 use App\User;
@@ -46,7 +49,8 @@ The default settings:
 * OrderBy ID
 * DESC
 
-These options are automatically validated.  You can specify as many columns as you wish.  Queries can specify their own validation rules.
+These options are automatically validated.  You can specify as many columns 
+as you wish.  Queries can specify their own validation rules.
 
 ```php
 SearchableResource::make(User::query())
@@ -59,7 +63,10 @@ SearchableResource::make(User::query())
 
 ## Invokable Queries
 
-Queries are expressed as invokable classes which contain logic per request field.  Queries can apply to multiple attributes but should pertain to a single input.  Rules can be contained within the query class itself.   The instance of the request will be passed into the rule when it's instantiated. 
+Queries are expressed as invokable classes which contain logic per request 
+field.  Queries can apply to multiple attributes but should pertain to a 
+single input.  Rules can be contained within the query class itself.   The 
+instance of the request will be passed into the rule when it's instantiated. 
 
 
 ```php
@@ -78,13 +85,13 @@ Queries are expressed as invokable classes which contain logic per request field
  
      public function __invoke(Builder $builder): void
      {
-         $builder->where($this->attribute, $this->getValue());
+         $builder->where($this->getAttribute(), $this->getValue());
      }
  
-     public function rules(?Request $request = null): array
+     public function rules(): array
      {
          return [
-             [$this->field => 'sometimes|string|max:255'],
+             [$this->getField() => 'sometimes|string|max:255'],
          ];
      }
  }
@@ -101,9 +108,9 @@ use BayAreaWebPro\SearchableResource\Contracts\ConditionalQuery;
  
 class ConditionalRoleQuery extends RoleQuery implements ConditionalQuery
 {
-    public function applies(Request $request): bool
+    public function applies(): bool
     {
-    	return $this->filled($this->field);
+    	return $this->request->filled($this->field);
     }
 }
 ```
@@ -121,9 +128,9 @@ SearchableResource::make(User::query())
 	]);
 ```
 
-Second by instantiating each query using the make method.  This can be useful when you need more methods and logic to determine usage.
-
-For example let's say we have a select field query that implments it's own builder interface:
+Second by instantiating each query using the make method.  This can be useful when you need 
+more methods and logic to determine usage. For example let's say we have a select field 
+query that implements it's own builder interface:
 
 ```php
 use App\Queries\SelectQuery;
@@ -172,21 +179,26 @@ SearchableResource::make(User::query())
 
 ### API / JSON Resources
 
-SearchableResources are generic JsonResources by default.  You can easily specify which resource class should be used to map your models when building the response.
+SearchableResources are generic JsonResources by default.  You can easily specify 
+which resource class should be used to map your models when building the response.
 
 > Must extend `JsonResource`.
 
 ```php
 SearchableResource::make(User::query())
 	->resource(UserResource::class)
-	->paginate(8)
+	->paginate(8);
 ```
 
 ### Response Output
 
-The relevant query parameters and request options are appended to the output for convenience.  Two additional properties have been added to the pagination parameters to remove the need for conditionals on the client / user side. `isFirstPage` and `isLastPage` making pagination buttons easy to disable via props (Vue | React).
+The relevant query parameters and request options are appended to the output for 
+convenience.  Two additional properties have been added to the pagination parameters 
+to remove the need for conditionals on the client / user side `isFirstPage` and `isLastPage` 
+making pagination buttons easy to disable via props (Vue | React).
 
-> Note: If the `pagination` method is not used, all pagination related properties will be filtered from the output data.
+> Note: If the `pagination` method is not used, all pagination related properties 
+> will be filtered from the output data.
 
 ```
 "data": [
@@ -216,9 +228,11 @@ The relevant query parameters and request options are appended to the output for
 }
 ```
 
-### Options: Sessions / AirLock
+### Options Formatting
 
-Request options are appended to the output for convenience.  Options will be auto-formatted with labels for usage with forms and filters when sessions are enabled via AirLock or otherwise.
+Request options are appended to the output for convenience.  Options can 
+be auto-formatted with labels for usage with forms and filters by calling 
+the `labeled` method on the builder.
 
 ```
 "options": {
@@ -242,7 +256,6 @@ Request options are appended to the output for convenience.  Options will be aut
 ### Vue Components Example
 
 > Component Usage: 
-
 
 ```vue
 <script>
@@ -472,17 +485,13 @@ Request options are appended to the output for convenience.  Options will be aut
             prevPage() {
                 if (this.value.isFirstPage) return;
                 this.$router.push({
-                    query: Object.assign({}, this.$route.query, {
-                        page: this.page - 1
-                    })
+                    query: {...this.$route.query, page: this.page - 1}
                 }, () => this.$emit('prevPage'), () => this.$emit('failed'))
             },
             nextPage() {
                 if (this.value.isLastPage) return;
                 this.$router.push({
-                    query: Object.assign({}, this.$route.query, {
-                        page: this.page + 1
-                    })
+                    query: {...this.$route.query, page: this.page + 1},
                 }, () => this.$emit('nextPage'), () => this.$emit('failed'))
             }
         }
@@ -491,27 +500,19 @@ Request options are appended to the output for convenience.  Options will be aut
 <template>
     <div class="grid mt-4">
         <div class="grid-item pr-1">
-            <button
-                id="prevPage"
-                dusk="prevPage"
-                @click="prevPage"
-                :disabled="value.isFirstPage">
+            <button @click="prevPage" :disabled="value.isFirstPage">
                 Prev
             </button>
         </div>
         <div class="grid-item pl-1">
-            <button
-                id="nextPage"
-                dusk="nextPage"
-                @click="nextPage"
-                :disabled="value.isLastPage">
+            <button @click="nextPage" :disabled="value.isLastPage">
                 Next
             </button>
         </div>
-        <div v-if="value.current_page && value.last_page" class="grid-item text-xs text-gray-500 hidden sm:block">
+        <div v-if="value.current_page && value.last_page">
             Page <strong>{{ value.current_page }}</strong> of <strong>{{ value.last_page }}</strong>
         </div>
-        <div v-if="value.total" class="grid-item text-xs text-gray-500 hidden sm:block">
+        <div v-if="value.total">
             <strong>{{ value.total }}</strong> Total Entities
         </div>
     </div>
