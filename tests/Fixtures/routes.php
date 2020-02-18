@@ -2,6 +2,7 @@
 
 use BayAreaWebPro\SearchableResource\SearchableResource;
 use BayAreaWebPro\SearchableResource\Tests\Fixtures\Models\User;
+use BayAreaWebPro\SearchableResource\Tests\Fixtures\Queries\OptionsQuery;
 use BayAreaWebPro\SearchableResource\Tests\Fixtures\Queries\RoleQuery;
 use BayAreaWebPro\SearchableResource\Tests\Fixtures\Queries\UserQuery;
 use BayAreaWebPro\SearchableResource\Tests\Fixtures\Resources\MockResource;
@@ -11,11 +12,11 @@ use Illuminate\Support\Facades\Route;
  * Orderable Test
  */
 Route::get('orderable', fn() => (
-    SearchableResource::make(User::query())
-        ->orderable([
-            'name',
-            'role',
-        ])
+SearchableResource::make(User::query())
+    ->orderable([
+        'name',
+        'role',
+    ])
 ))->name('orderable');
 
 /**
@@ -26,8 +27,8 @@ SearchableResource::make(User::query())
     ->appendable([
         'test',
     ])
-    ->withFields([
-        'name'
+    ->fields([
+        'name',
     ])
 ))->name('appendable');
 
@@ -76,14 +77,42 @@ SearchableResource::make(User::query())
 ))->name('labeled');
 
 /**
+ * With Data Test
+ */
+Route::get('with', fn() => (
+SearchableResource::make(User::query())
+    ->with([
+        'with' => true,
+    ])
+))->name('with');
+
+/**
+ * With Options
+ */
+Route::get('options', fn() => (
+SearchableResource::make(User::query())
+    ->queries([
+        OptionsQuery::class,
+    ])
+))->name('options');
+
+/**
  * Validation Test
  */
 Route::get('validation', fn() => (
 SearchableResource::make(User::query())
-    ->paginate(4)
     ->queries([
         UserQuery::class,
         RoleQuery::class,
     ])
-    ->labeled()
 ))->name('validation');
+
+/**
+ * Select Test
+ */
+Route::get('select', fn() => (
+SearchableResource::make(User::query())
+    ->select([
+        'id',
+    ])
+))->name('select');

@@ -9,9 +9,9 @@ trait Labeled{
      * @param bool $enabled
      * @return $this
      */
-    public function labeled($enabled = true): self
+    public function labeled(bool $enabled = true): self
     {
-        $this->shouldUseLabels = $enabled;
+        $this->labeled = $enabled;
         return $this;
     }
 }

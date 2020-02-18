@@ -1,7 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace BayAreaWebPro\SearchableResource\Tests;
+namespace BayAreaWebPro\SearchableResource\Tests\Feature;
 
+use BayAreaWebPro\SearchableResource\Tests\TestCase;
 use Illuminate\Support\Str;
 
 class ValidationTest extends TestCase

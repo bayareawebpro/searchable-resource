@@ -2,6 +2,7 @@
 
 namespace BayAreaWebPro\SearchableResource;
 
+use BayAreaWebPro\SearchableResource\Commands\MakeQueryCommand;
 use Illuminate\Support\ServiceProvider;
 
 class SearchableResourceServiceProvider extends ServiceProvider
@@ -20,6 +21,7 @@ class SearchableResourceServiceProvider extends ServiceProvider
         // $this->loadRoutesFrom(__DIR__.'/routes.php');
 
         if ($this->app->runningInConsole()) {
+
             $this->publishes([
                 __DIR__.'/../config/config.php' => config_path('query-resource.php'),
             ], 'config');
@@ -40,7 +42,9 @@ class SearchableResourceServiceProvider extends ServiceProvider
             ], 'lang');*/
 
             // Registering package commands.
-            // $this->commands([]);
+             $this->commands([
+                 MakeQueryCommand::class
+             ]);
         }
     }
 

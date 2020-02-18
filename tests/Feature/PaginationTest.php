@@ -1,11 +1,12 @@
 <?php declare(strict_types=1);
 
-namespace BayAreaWebPro\SearchableResource\Tests;
+namespace BayAreaWebPro\SearchableResource\Tests\Feature;
 
 use BayAreaWebPro\SearchableResource\SearchableResource;
 use BayAreaWebPro\SearchableResource\SearchableResourceBuilder;
 use BayAreaWebPro\SearchableResource\SearchableResourceServiceProvider;
 use BayAreaWebPro\SearchableResource\Tests\Fixtures\Models\User;
+use BayAreaWebPro\SearchableResource\Tests\TestCase;
 
 class PaginationTest extends TestCase
 {

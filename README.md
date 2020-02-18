@@ -19,57 +19,126 @@ You can install the package via composer:
 composer require bayareawebpro/searchable-resource
 ```
 
-## Usage
+---
 
-* Sorting ```/my-route?sort=asc```
-* Filtering ```/my-route?my_field=true```
-* Ordering```/my-route?order_by=name```
-* Searching ```/my-route?search=Taylor```
-* Pagination ```/my-route?page=1&per_page=8```
+### Basic Usage
 
+SearchableResources implement the `Responsable` interface which allows them to be 
+returned from controllers easily. 
 
-The ```make``` method accepts instances of Eloquent Builder.  SearchableResources 
-implement the `Responsable` interface which allows them to be returned from controllers easily. 
+The ```make``` method accepts instances of Eloquent Builder.  
 
 ```php
 use App\User;
+use App\Post;
+
 use BayAreaWebPro\SearchableResource\SearchableResource;
 
-return SearchableResource::make(User::query())->paginate(16);
+SearchableResource::make(User::query());
+SearchableResource::make(Post::forUser(request()->user())); 
 ```
+	
+### Ordering and Sorting
 
-#### Validation
-
-Validation is compiled from your queries and options.
-
-#### Ordering and Sorting
-
-The default settings:
-
-* OrderBy ID
-* DESC
-
-These options are automatically validated.  You can specify as many columns 
-as you wish.  Queries can specify their own validation rules.
+You can specify as many orderable columns as you wish.
 
 ```php
 SearchableResource::make(User::query())
+	->orderable(['name', 'email'])
 	->orderBy('name')
 	->sort('desc')
-	->orderable([
-		'name'
-	]);
+	->paginate(16);
 ```
 
-## Invokable Queries
+The default settings:
 
-Queries are expressed as invokable classes which contain logic per request 
-field.  Queries can apply to multiple attributes but should pertain to a 
-single input.  
+* order_by ID
+* sort DESC
 
-The following is an example of a generic name query that works on multiple 
-columns and a relationship.  We extract the most generic term for the overall 
-query then we can use that value to construct the attribute names.
+---
+
+### Full Example
+
+```php
+use App\User;
+use App\Queries\UserSearch;
+use App\Queries\RoleFilter;
+use App\Http\Resources\UserResource;
+use BayAreaWebPro\SearchableResource\SearchableResource;
+
+SearchableResource::make(User::query())
+    ->resource(UserResource::class)
+    ->queries([
+        UserSearch::class,
+        RoleFilter::class
+    ])
+    ->orderable([
+        'id', 'name', 'email', 'role',
+        'created_at', 'updated_at',
+    ])
+    ->appendable([
+        'created_for_humans',
+        'updated_for_humans',
+    ])
+    ->select([
+        'id',
+        'name', 'email', 'role',
+        'created_at', 'updated_at',
+    ])
+    ->fields([
+       'my_filter_key'
+    ])
+    ->with([
+        'my_key' => true
+    ])
+    ->orderBy('updated_at')
+    ->sort('desc')
+    ->paginate(16)
+    ->labeled();
+```
+
+---
+
+### API / JSON Resources
+
+SearchableResources are generic JsonResources by default.  You can easily specify 
+which resource class should be used to map your models when building the response.
+
+> Must extend `JsonResource`.
+
+```php
+SearchableResource::make(User::query())
+    ->resource(UserResource::class);
+```
+---
+
+### Validation
+
+Queries can specify their own validation rules by implementing the `ValidatableQuery` 
+contract.  The following rules are automatically merged into the collected rules 
+from your queries.  
+
+```php
+[
+    'search'   => ['sometimes', 'nullable', 'string', 'max:255'],
+    'page'     => ['sometimes', 'numeric', 'min:1', 'max:'.PHP_INT_MAX],
+    'sort'     => ['sometimes', 'string', Rule::in($this->getSortOptions()->all())],
+    'order_by' => ['sometimes', 'string', Rule::in($this->getOrderableOptions()->all())],
+    'per_page' => ['sometimes', 'numeric', Rule::in($this->getPerPageOptions()->all())],
+];
+```
+
+---
+
+### Invokable Queries
+
+Queries are expressed as invokable classes that extend the `AbstractQuery` class 
+which contains logic per request field.  Queries can apply to multiple attributes/columns
+but should pertain to a single input.  
+
+`php artisan make:searchable NameQuery`
+
+The following is an example of a generic name query:  
 
 ```php
  <?php declare(strict_types=1);
@@ -79,18 +148,14 @@ query then we can use that value to construct the attribute names.
  use Illuminate\Database\Eloquent\Builder;
  use BayAreaWebPro\SearchableResource\AbstractQuery;
  
-class NameQuery extends AbstractQuery
+class NameLikeQuery extends AbstractQuery
 {
-    protected string $field = 'name';
+    protected string $field = 'search';
     protected string $attribute = 'name';
 
-    /**
-    * username, first_name, last_name
-    * @param Builder $builder
-    */
     public function __invoke(Builder $builder): void
     {
-        $builder->where("{$this->getAttribute()}", "like", "%{$this->getValue()}%");
+        $builder->where($this->getAttribute(), "like", "%{$this->getValue()}%");
     }
 }
 ```
@@ -99,6 +164,10 @@ class NameQuery extends AbstractQuery
 
 Queries that implement the `ConditionalQuery` Contract will only be applied when 
 their `applies` method returns `true`. 
+ 
+By default an query that extends `AbstractQuery` class using the `ConditionalQuery` contract 
+already implements this method for you by calling the `filled` method on the request.  
+Override the parent method to customize.
 
 ```php
 <?php declare(strict_types=1);
@@ -120,7 +189,7 @@ class ConditionalRoleQuery extends AbstractQuery implements ConditionalQuery
 
     public function applies(): bool
     {
-    	return $this->request->filled($this->field);
+    	return parent::applies() && in_array($this->getValue(), ['user', 'admin']);
     }
 }
 ```
@@ -129,9 +198,6 @@ class ConditionalRoleQuery extends AbstractQuery implements ConditionalQuery
 
 Queries that implement the `ValidatableQuery` Contract will have their returned rules 
 merged into the validator.  Otherwise the rules will be ignored.
- 
-By default the `AbstractQuery` class already implements this method for you by 
-calling the `filled` method on the request.  Override the parent method to customize.
 
 ```php
 <?php declare(strict_types=1);
@@ -139,10 +205,9 @@ calling the `filled` method on the request.  Override the parent method to custo
 namespace App\Queries;
  
 use BayAreaWebPro\SearchableResource\AbstractQuery;
-use BayAreaWebPro\SearchableResource\Contracts\ConditionalQuery;
 use BayAreaWebPro\SearchableResource\Contracts\ValidatableQuery;
  
-class ConditionalRoleQuery extends AbstractQuery implements ConditionalQuery, ValidatableQuery
+class ConditionalRoleQuery extends AbstractQuery implements ValidatableQuery
 {
 
     protected string $field = 'role';
@@ -153,15 +218,10 @@ class ConditionalRoleQuery extends AbstractQuery implements ConditionalQuery, Va
         $builder->where($this->getAttribute(), $this->getValue());
     }
 
-    public function applies(): bool
-    {
-    	return $this->request->filled($this->field);
-    }
-
     public function rules(): array
     {
         return [
-            [$this->getField() => 'sometimes|string|in:admin,editor,guest'],
+            [$this->getField() => 'required|string|in:admin,editor,guest'],
         ];
     }
 }
@@ -181,34 +241,43 @@ SearchableResource::make(User::query())
 ```
 
 Second by instantiating each query using the make method.  This can be useful when you need 
-more methods and logic to determine usage. For example let's say we have a select field 
+more methods and logic to determine usage. 
+
+```php
+$searchable = SearchableResource::make(User::query());
+```
+
+### ProvidesOptions
+
+Queries can provide options that will be appended to the request options 
+data by implementing the `ProvidesOptions` contract.  
+This method should return a flat array of values.
+
+For example let's say we have a select field 
 query that implements it's own builder interface:
 
 ```php
 use App\Queries\SelectQuery;
 
-$searchable = SearchableResource::make(User::query());
-
-$searchable->query(
-	SelectQuery::make()
-		->field('user_role') // Request Field
-		->attribute('role')  // Table Column
-		->default('user') 	 // Default Value
-		->options([
-			'user', 'editor','admin' //Rule (in)
-		])
-);
-
-
-return $searchable;
-
+SearchableResource::make(User::query())
+    ->query(
+        SelectQuery::make()
+            ->field('user_role') // Request Field
+            ->attribute('role')  // Table Column
+            ->default('user') 	 // Default Value
+            ->options([
+                'user', 'editor','admin' //Rule (in)
+            ])
+    );
 ```
+
+---
 
 ### Appendable Data
 
 Attributes and fields can be appended to the response by using the following methods: 
 
-For model attributes: 
+**For model attributes:** 
 
 ```php
 SearchableResource::make(User::query())
@@ -219,26 +288,62 @@ SearchableResource::make(User::query())
     ]);
 ```
 
-For request fields (appended to the query in response): 
+**For additional data (appended to the response):** 
 
 ```php
 SearchableResource::make(User::query())
-	->withFields([
-		'name'
-	]);
+    ->with([
+        'my_key' => []
+    ]);
 ```
 
-### API / JSON Resources
+```json
+{
+    "my_key": [],
+    "data": []
+}
+```
 
-SearchableResources are generic JsonResources by default.  You can easily specify 
-which resource class should be used to map your models when building the response.
-
-> Must extend `JsonResource`.
+**For request fields (appended to the query in response):** 
 
 ```php
 SearchableResource::make(User::query())
-	->resource(UserResource::class)
-	->paginate(8);
+    ->fields([
+        'my_filter_state'
+    ]);
+```
+
+```json
+{
+    "query": {
+        "my_filter_state": true
+    }
+}
+```
+
+
+### Options Formatting
+
+Request options are appended to the output for convenience.  Options can 
+be auto-formatted with labels for usage with forms and filters by calling 
+the `labeled()` method on the builder.
+
+```
+"options": {
+    "orderable": [
+        {
+            "value": "my_field" 
+            "label": "My Field"
+        },
+    ]
+    "sort": [
+        {
+            "value": "asc" 
+            "label": "Asc"
+        },
+    ]
+}
+
 ```
 
 ### Response Output
@@ -253,55 +358,32 @@ making pagination buttons easy to disable via props (Vue | React).
 
 ```
 "data": [
-	//
+    //
 ],
 "pagination": {
-	"isFirstPage": true,
-	"isLastPage": true,
-	...default pagination props...
+    "isFirstPage": true,
+    "isLastPage": true,
+    ...default pagination props...
 },
 "query": {
-	"page": 1,
-	"sort": "desc",
-	"order_by": "id",	
-	"search": "term",
-	"per_page": 4,	
+    "page": 1,
+    "sort": "desc",
+    "order_by": "id",	
+    "search": "term",
+    "per_page": 4,	
 },
 "options": {
-	"orderable": [
-		"id", 
-		"name"
-	],
-	"sort": [
-		"asc"
-		"desc"
-	]
+    "orderable": [
+        "id", 
+        "name"
+    ],
+    "sort": [
+        "asc"
+        "desc"
+    ]
 }
 ```
 
-### Options Formatting
-
-Request options are appended to the output for convenience.  Options can 
-be auto-formatted with labels for usage with forms and filters by calling 
-the `labeled` method on the builder.
-
-```
-"options": {
-	"orderable": [
-		{
-			"value": "my_field" 
-			"label": "My Field"
-		},
-	]
-	"sort": [
-		{
-			"value": "asc" 
-			"label": "Asc"
-		},
-	]
-}
-
-```
 
 
 ### Vue Components Example
