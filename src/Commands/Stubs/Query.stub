@@ -52,7 +52,7 @@ class DummyClass extends AbstractQuery
      * ProvidesOptions
      * use contract to enable
      */
-    public function getOptions(): array
+    public function options(): array
     {
         return [
             //'key' => 'value',
