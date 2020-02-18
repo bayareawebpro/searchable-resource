@@ -233,6 +233,7 @@ Queries can provide options that will be appended to the request options
 data by implementing the `ProvidesOptions` contract.  This method should return 
 a flat array of values that are injected into the response query options data.
 
+
 For example let's say we have a select field 
 query that implements it's own builder interface:
 
@@ -245,10 +246,63 @@ SearchableResource::make(User::query())
             ->field('user_role') // Request Field
             ->attribute('role')  // Table Column
             ->default('user') 	 // Default Value
-            ->options([
+            ->values([
                 'user', 'editor','admin' //Rule (in)
             ])
     );
+```
+
+
+```php
+<?php declare(strict_types=1);
+
+namespace App\Queries;
+ 
+use BayAreaWebPro\SearchableResource\AbstractQuery;
+use BayAreaWebPro\SearchableResource\Contracts\ProvidesOptions;
+ 
+class ProvidesOptionsQuery extends AbstractQuery implements ProvidesOptions
+{
+
+    protected string $field = 'role';
+    protected string $attribute = 'role';
+ 
+    public function __invoke(Builder $builder): void
+    {
+        $builder->where($this->getAttribute(), $this->getValue());
+    }
+
+    public function options(): array
+    {
+        return [
+            $this->getField() => [
+                'admin', 'editor'
+            ],
+        ];
+    }
+}
+```
+
+### Options Formatting
+
+Request options are appended to the output for convenience / UI State.  Options can 
+be auto-formatted with labels for usage with forms and filters by calling 
+the `labeled()` method on the builder.  The labeled method accept a boolean 
+value which can be used to enable when the request has a session.
+
+```
+"options": {
+    "role": [
+        {
+            "value": "admin" 
+            "label": "Admin"
+        },
+        {
+            "value": "editor" 
+            "label": "Editor"
+        },
+    ]
+}
 ```
 
 ### Adding Queries:
@@ -321,30 +375,6 @@ SearchableResource::make(User::query())
 }
 ```
 
-
-### Options Formatting
-
-Request options are appended to the output for convenience.  Options can 
-be auto-formatted with labels for usage with forms and filters by calling 
-the `labeled()` method on the builder.
-
-```
-"options": {
-    "orderable": [
-        {
-            "value": "my_field" 
-            "label": "My Field"
-        },
-    ]
-    "sort": [
-        {
-            "value": "asc" 
-            "label": "Asc"
-        },
-    ]
-}
-
-```
 
 ### Response Output
 

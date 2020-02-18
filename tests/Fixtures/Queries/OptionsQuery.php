@@ -9,7 +9,7 @@ class OptionsQuery extends AbstractQuery implements ProvidesOptions
 {
     protected string $field = 'search';
 
-    public function getOptions(): array
+    public function options(): array
     {
         return [
             'key' => 'value',
