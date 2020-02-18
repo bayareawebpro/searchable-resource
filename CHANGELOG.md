@@ -16,7 +16,7 @@ All notable changes to `searchable-resource` will be documented in this file.
 removed from queries with the exception of `make` so queries can be applied using 
 `tap` in other usages.
 
-- `SearchableResourceBuilder` class will instantiate classes that extend 
+- `SearchableBuilder` class will instantiate classes that extend 
 `AbstractQuery` with the `app()` helper instead of static make method.
 
 - `Validatable` interface removed from `AbstractQuery` so queries can be 
@@ -31,10 +31,23 @@ the functionality.
 
 - Refactored `getOptions` method signature to `options` and added `with` method.
 
-## 1.0.5 - 2020-02-17
+## 1.0.5 - 2020-02-18
 
 - Added `when` conditional callback method.
 
-## 1.0.6 - 2020-02-17
+## 1.0.6 - 2020-02-18
 
 - Update Query.stub to `getOptions` method signature to `options`
+
+## 1.0.6 - 2020-02-18
+
+- Add `FormatsOptions` contract and `OptionsFormatter` class.
+
+## 1.0.7 - 2020-02-18
+
+- Refactor `OptionsFormatter` class.
+
+## 1.0.8 - 2020-02-18
+
+- Add `tap` alias of (when true) method and insure invokable classes can be used with `when`.
+- Rename SearchableResourceBuilder to SearchableBuilder (name too long).

@@ -8,14 +8,19 @@ class WhenTest extends TestCase
 {
     public function test_will_append_with_when()
     {
-        $this->json('get', route('when', ['when' => true]))
+        $this->json('get', route('when', [
+            'closure' => 'closure',
+            'class' => 'class'
+        ]))
             ->assertJson([
-                "with"=> true,
+                "closure"=> 'closure',
+                "class"=> 'class',
             ])
         ;
         $this->json('get', route('when', []))
             ->assertJsonMissing([
-                "with"=> true,
+                "closure"=> 'closure',
+                "class"=> 'class',
             ], true)
         ;
     }

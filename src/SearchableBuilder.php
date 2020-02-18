@@ -2,7 +2,6 @@
 
 namespace BayAreaWebPro\SearchableResource;
 
-use BayAreaWebPro\SearchableResource\Contracts\FormatsOptions;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Database\Eloquent\Builder;
@@ -10,6 +9,7 @@ use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 
 use Illuminate\Support\Collection;
 use Illuminate\Support\Traits\Macroable;
+use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -19,6 +19,7 @@ use Illuminate\Contracts\Pagination\Paginator;
 use BayAreaWebPro\SearchableResource\Contracts\ValidatableQuery;
 use BayAreaWebPro\SearchableResource\Contracts\ConditionalQuery;
 use BayAreaWebPro\SearchableResource\Contracts\ProvidesOptions;
+use BayAreaWebPro\SearchableResource\Contracts\FormatsOptions;
 
 use BayAreaWebPro\SearchableResource\Concerns\Resourceful;
 use BayAreaWebPro\SearchableResource\Concerns\Validatable;
@@ -31,12 +32,10 @@ use BayAreaWebPro\SearchableResource\Concerns\Optional;
 use BayAreaWebPro\SearchableResource\Concerns\Labeled;
 use BayAreaWebPro\SearchableResource\Concerns\Withable;
 use BayAreaWebPro\SearchableResource\Concerns\Whenable;
-use Closure;
 
-class SearchableResourceBuilder implements Responsable
+class SearchableBuilder implements Responsable, Arrayable
 {
     use Macroable;
-
     use Resourceful;
     use Validatable;
     use Appendable;
@@ -258,44 +257,78 @@ class SearchableResourceBuilder implements Responsable
         $this->request = $request ?: $this->request;
 
         if (isset($this->paginate)) {
-            return $this->formatPaginatedResponse($request);
+            return $this
+                ->formatPaginatedResource()
+                ->toResponse($this->request);
         }
 
-        return $this->formatResponse($request);
+        return $this
+            ->formatBaseResource()
+            ->toResponse($this->request);
     }
 
     /**
-     * @param Request|null $request
-     * @return JsonResponse
+     * Get the array representation of the data.
+     * @return array
      */
-    protected function formatPaginatedResponse($request = null): JsonResponse
+    public function toArray()
+    {
+        if (isset($this->paginate)) {
+            $paginator = $this->executePaginatorQuery();
+            return array_merge([
+                'data' => $this->appendAppendable($paginator->items())
+            ], $this->getPaginatedAdditional($paginator), $this->with);
+        }
+
+        return array_merge([
+            'data' => $this->appendAppendable($this->executeQuery()->all()),
+        ], $this->getBaseAdditional(), $this->with);
+    }
+
+    /**
+     * Format the paginated resource.
+     * @return JsonResource
+     */
+    protected function formatPaginatedResource(): JsonResource
     {
         $paginator = $this->executePaginatorQuery();
         $items = $this->appendAppendable($paginator->items());
-
-        return $this->resource::collection($items)
-            ->additional(
-                array_merge([
-                    'pagination' => $this->formatPaginator($paginator),
-                    'query'      => $this->formatQuery($paginator),
-                    'options'    => $this->getOptions(),
-                ], $this->with)
-            )->toResponse($request);
+        return $this->resource::collection($items)->additional($this->getPaginatedAdditional($paginator));
     }
 
     /**
-     * @param Request|null $request
-     * @return JsonResponse
+     * Format the base resource.
+     * @return JsonResource
      */
-    protected function formatResponse($request = null): JsonResponse
+    protected function formatBaseResource(): JsonResource
     {
         $items = $this->appendAppendable($this->executeQuery()->all());
+        return $this->resource::collection($items)->additional($this->getBaseAdditional());
+    }
 
-        return $this->resource::collection($items)->additional(
-            array_merge([
-                'query'   => $this->formatQuery(),
-                'options' => $this->getOptions()->forget('per_page'),
-            ], $this->with)
-        )->toResponse($request);
+    /**
+     * Get Additional Data for Paginated Queries
+     * @param Paginator $paginator
+     * @return array
+     */
+    protected function getPaginatedAdditional(Paginator $paginator): array
+    {
+        return array_merge([
+            'pagination' => $this->formatPaginator($paginator),
+            'query'      => $this->formatQuery($paginator),
+            'options'    => $this->getOptions(),
+        ], $this->with);
+    }
+
+    /**
+     * Get Additional Data for Base Queries
+     * @return array
+     */
+    protected function getBaseAdditional(): array
+    {
+        return array_merge([
+            'query'   => $this->formatQuery(),
+            'options' => $this->getOptions()->forget('per_page'),
+        ], $this->with);
     }
 }

@@ -1,0 +1,18 @@
+<?php declare(strict_types=1);
+
+namespace DummyNamespace;
+
+use BayAreaWebPro\SearchableResource\Contracts\InvokableBuilder;
+use BayAreaWebPro\SearchableResource\SearchableBuilder;
+
+class DummyClass implements InvokableBuilder
+{
+    /**
+     * InvokableBuilder
+     * @param SearchableBuilder $builder
+     */
+    public function __invoke(SearchableBuilder $builder): void
+    {
+
+    }
+}
