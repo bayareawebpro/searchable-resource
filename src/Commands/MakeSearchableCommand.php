@@ -3,27 +3,26 @@ namespace BayAreaWebPro\SearchableResource\Commands;
 
 use Illuminate\Console\GeneratorCommand;
 use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Console\Exception\InvalidArgumentException;
 
-class MakeQueryCommand extends GeneratorCommand{
+class MakeSearchableCommand extends GeneratorCommand{
 
     /**
      * The name and signature of the console command.
      * @var string
      */
-    protected $signature = 'make:searchable {name : The required name of the query class}';
+    protected $signature = 'make:searchable:builder {name : The required name of the builder class}';
 
     /**
      * The console command description.
      * @var string
      */
-    protected $description = 'Create a Searchable Resource Query class';
+    protected $description = 'Create a Searchable Resource Builder class';
 
     /**
      * The type of class being generated.
      * @var string
      */
-    protected $type = 'Query';
+    protected $type = 'Builder';
 
     /**
      * Get the stub file for the generator.
@@ -31,7 +30,7 @@ class MakeQueryCommand extends GeneratorCommand{
      */
     protected function getStub()
     {
-        return __DIR__ . '/Stubs/Query.stub';
+        return __DIR__ . '/Stubs/Builder.stub';
     }
 
     /**
@@ -51,6 +50,6 @@ class MakeQueryCommand extends GeneratorCommand{
      * @return string
      */
     protected function getDefaultNamespace($rootNamespace){
-        return $rootNamespace.'\Http\Resources\Searchable\Queries';
+        return $rootNamespace.'\Http\Resources\Searchable';
     }
 }

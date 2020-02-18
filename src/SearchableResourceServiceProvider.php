@@ -3,6 +3,7 @@
 namespace BayAreaWebPro\SearchableResource;
 
 use BayAreaWebPro\SearchableResource\Commands\MakeQueryCommand;
+use BayAreaWebPro\SearchableResource\Commands\MakeSearchableCommand;
 use Illuminate\Support\ServiceProvider;
 
 class SearchableResourceServiceProvider extends ServiceProvider
@@ -24,7 +25,8 @@ class SearchableResourceServiceProvider extends ServiceProvider
 
             // Registering package commands.
             $this->commands([
-                MakeQueryCommand::class
+                MakeQueryCommand::class,
+                MakeSearchableCommand::class,
             ]);
 
             $this->publishes([

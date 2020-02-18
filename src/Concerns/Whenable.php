@@ -2,12 +2,15 @@
 
 namespace BayAreaWebPro\SearchableResource\Concerns;
 
+use BayAreaWebPro\SearchableResource\Contracts\InvokableBuilder;
+use Closure;
+
 trait Whenable{
 
     /**
      * When true, callback with builder instance.
      * @param bool $condition
-     * @param $callback
+     * @param InvokableBuilder|Closure $callback
      * @return $this
      */
     public function when($condition, $callback): self
@@ -20,7 +23,7 @@ trait Whenable{
 
     /**
      * When true, callback with builder instance.
-     * @param $callback
+     * @param InvokableBuilder|Closure $callback
      * @return $this
      */
     public function tap($callback): self

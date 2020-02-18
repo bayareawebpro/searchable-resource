@@ -22,6 +22,7 @@ class DummyClass extends AbstractQuery
 
     /**
      * InvokableQuery
+     * @param Builder $builder
      */
     public function __invoke(Builder $builder): void
     {
