@@ -6,11 +6,11 @@ All notable changes to `searchable-resource` will be documented in this file.
 
 - Initial Release
 
-## 1.1.0 - 2020-02-16
+## 1.0.1 - 2020-02-16
 
 - Bug Fixes and Add `labeled` method to auto-format query options.
 
-## 1.1.1 - 2020-02-17
+## 1.0.2 - 2020-02-17
 
 - `Request` removed from `AbstractQuery` method parameters as all static methods have been 
 removed from queries with the exception of `make` so queries can be applied using 
@@ -22,3 +22,15 @@ removed from queries with the exception of `make` so queries can be applied usin
 - `Validatable` interface removed from `AbstractQuery` so queries can be 
 applied without interacting with input. Implement the interface `ValidatableQuery` to regain 
 the functionality. 
+
+## 1.0.3 - 2020-02-17
+
+- Added `ProvidesOptions` interface to allow queries to append their options to the response. 
+
+## 1.0.4 - 2020-02-17
+
+- Refactored `getOptions` method signature to `options` and added `with` method.
+
+## 1.0.5 - 2020-02-17
+
+- Added `when` conditional callback method.
