@@ -11,7 +11,7 @@ trait Selectable{
      */
     public function select(array $columns = ['*']): self
     {
-        $this->select = array_merge($this->select, $columns);
+        $this->select = $columns;
         return $this;
     }
 }
