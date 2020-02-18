@@ -12,7 +12,6 @@ class LabelsTest extends TestCase
         factory(User::class, 10)->create();
 
         $this->json('get', route('labeled', []))
-            ->dump()
             ->assertJson([
             'options' =>[
                 'per_page' => [

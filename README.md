@@ -347,6 +347,28 @@ class OptionsFormatter implements FormatsOptions {
 }
 ```
 
+
+### Setting Up Default Options
+
+You can setup a resolving callback in a service provider to pre-bind options to every instance.
+
+```php
+
+use BayAreaWebPro\SearchableResource\OptionsFormatter;
+use BayAreaWebPro\SearchableResource\SearchableResourceBuilder;
+
+$this->app->resolving(
+    SearchableResourceBuilder::class,
+    function (SearchableResourceBuilder $builder){
+    return $builder
+        ->useFormatter(new OptionsFormatter)
+        ->labeled(request()->hasSession())
+        ->orderBy('created_at')
+        ->paginate(8)
+        ->sort('desc')
+    ;
+});
+```
 ---
 
 ### Adding Queries:

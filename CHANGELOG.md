@@ -38,3 +38,8 @@ the functionality.
 ## 1.0.6 - 2020-02-17
 
 - Update Query.stub to `getOptions` method signature to `options`
+
+
+## 1.0.6 - 2020-02-17
+
+- Add  to `FormatsOptions` contract and `OptionsFormatter` class.
