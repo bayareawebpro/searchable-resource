@@ -7,7 +7,7 @@ use Closure;
 trait Whenable{
 
     /**
-     * Whenable true, callback with builder instance.
+     * When true, callback with builder instance.
      * @param bool $condition
      * @param Closure $closure
      * @return $this
