@@ -65,52 +65,104 @@ SearchableResource::make(User::query())
 
 Queries are expressed as invokable classes which contain logic per request 
 field.  Queries can apply to multiple attributes but should pertain to a 
-single input.  Rules can be contained within the query class itself.   The 
-instance of the request will be passed into the rule when it's instantiated. 
+single input.  
 
+The following is an example of a generic name query that works on multiple 
+columns and a relationship.  We extract the most generic term for the overall 
+query then we can use that value to construct the attribute names.
 
 ```php
  <?php declare(strict_types=1);
  
  namespace App\Queries;
  
- use Illuminate\Http\Request;
  use Illuminate\Database\Eloquent\Builder;
  use BayAreaWebPro\SearchableResource\AbstractQuery;
  
- class RoleQuery extends AbstractQuery
- {
-     protected string $field = 'role';
-     protected string $attribute = 'role';
- 
-     public function __invoke(Builder $builder): void
-     {
-         $builder->where($this->getAttribute(), $this->getValue());
-     }
- 
-     public function rules(): array
-     {
-         return [
-             [$this->getField() => 'sometimes|string|max:255'],
-         ];
-     }
- }
+class NameQuery extends AbstractQuery
+{
+    protected string $field = 'name';
+    protected string $attribute = 'name';
+
+    /**
+    * username, first_name, last_name
+    * @param Builder $builder
+    */
+    public function __invoke(Builder $builder): void
+    {
+        $builder->where("{$this->getAttribute()}", "like", "%{$this->getValue()}%");
+    }
+}
 ```
 
-Queries can be conditionally applied by implmenting the `ConditionalQuery` contract.
+### ConditionalQuery Contract
+
+Queries that implement the `ConditionalQuery` Contract will only be applied when 
+their `applies` method returns `true`. 
 
 ```php
 <?php declare(strict_types=1);
 
 namespace App\Queries;
  
+use BayAreaWebPro\SearchableResource\AbstractQuery;
 use BayAreaWebPro\SearchableResource\Contracts\ConditionalQuery;
  
-class ConditionalRoleQuery extends RoleQuery implements ConditionalQuery
+class ConditionalRoleQuery extends AbstractQuery implements ConditionalQuery
 {
+    protected string $field = 'role';
+    protected string $attribute = 'role';
+ 
+    public function __invoke(Builder $builder): void
+    {
+        $builder->where($this->getAttribute(), $this->getValue());
+    }
+
     public function applies(): bool
     {
     	return $this->request->filled($this->field);
+    }
+}
+```
+
+### ValidatableQuery Contract
+
+Queries that implement the `ValidatableQuery` Contract will have their returned rules 
+merged into the validator.  Otherwise the rules will be ignored.
+ 
+By default the `AbstractQuery` class already implements this method for you by 
+calling the `filled` method on the request.  Override the parent method to customize.
+
+```php
+<?php declare(strict_types=1);
+
+namespace App\Queries;
+ 
+use BayAreaWebPro\SearchableResource\AbstractQuery;
+use BayAreaWebPro\SearchableResource\Contracts\ConditionalQuery;
+use BayAreaWebPro\SearchableResource\Contracts\ValidatableQuery;
+ 
+class ConditionalRoleQuery extends AbstractQuery implements ConditionalQuery, ValidatableQuery
+{
+
+    protected string $field = 'role';
+    protected string $attribute = 'role';
+ 
+    public function __invoke(Builder $builder): void
+    {
+        $builder->where($this->getAttribute(), $this->getValue());
+    }
+
+    public function applies(): bool
+    {
+    	return $this->request->filled($this->field);
+    }
+
+    public function rules(): array
+    {
+        return [
+            [$this->getField() => 'sometimes|string|in:admin,editor,guest'],
+        ];
     }
 }
 ```
@@ -155,7 +207,6 @@ return $searchable;
 ### Appendable Data
 
 Attributes and fields can be appended to the response by using the following methods: 
-
 
 For model attributes: 
 
