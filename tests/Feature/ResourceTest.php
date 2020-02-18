@@ -1,14 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace BayAreaWebPro\SearchableResource\Tests;
-
-use BayAreaWebPro\SearchableResource\Tests\Fixtures\Queries\UserQuery;
-use BayAreaWebPro\SearchableResource\Tests\Fixtures\Resources\MockResource;
-use BayAreaWebPro\SearchableResource\SearchableResource;
+namespace BayAreaWebPro\SearchableResource\Tests\Feature;
 use BayAreaWebPro\SearchableResource\Tests\Fixtures\Models\User;
-use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Foundation\Testing\TestResponse;
-use Illuminate\Validation\ValidationException;
+use BayAreaWebPro\SearchableResource\Tests\TestCase;
 
 class ResourceTest extends TestCase
 {

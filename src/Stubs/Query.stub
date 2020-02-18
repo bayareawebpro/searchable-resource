@@ -1,0 +1,61 @@
+<?php declare(strict_types=1);
+
+namespace DummyNamespace;
+
+use Illuminate\Database\Eloquent\Builder;
+use BayAreaWebPro\SearchableResource\AbstractQuery;
+use BayAreaWebPro\SearchableResource\Contracts\ConditionalQuery;
+use BayAreaWebPro\SearchableResource\Contracts\ValidatableQuery;
+use BayAreaWebPro\SearchableResource\Contracts\ProvidesOptions;
+
+class DummyClass extends AbstractQuery
+{
+    /**
+     * Request Field
+     */
+    protected string $field = 'search';
+
+    /**
+     * Database Attribute / Column
+     */
+    protected string $attribute = '';
+
+    /**
+     * InvokableQuery
+     */
+    public function __invoke(Builder $builder): void
+    {
+        $builder->where($this->getAttribute(), $this->getValue());
+    }
+
+    /**
+     * ConditionalQuery
+     * use contract to enable
+     */
+    public function applies(): bool
+    {
+        return $this->request->filled($this->getField());
+    }
+
+    /**
+     * ValidatableQuery
+     * use contract to enable
+     */
+    public function rules(): array
+    {
+        return [
+            //[$this->getField() => 'sometimes|nullable|string'],
+        ];
+    }
+
+    /**
+     * ProvidesOptions
+     * use contract to enable
+     */
+    public function getOptions(): array
+    {
+        return [
+            //'key' => 'value',
+        ];
+    }
+}

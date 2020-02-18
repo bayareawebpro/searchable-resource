@@ -1,8 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace BayAreaWebPro\SearchableResource\Tests;
+namespace BayAreaWebPro\SearchableResource\Tests\Feature;
 
 use BayAreaWebPro\SearchableResource\Tests\Fixtures\Models\User;
+use BayAreaWebPro\SearchableResource\Tests\TestCase;
 
 class OrderableTest extends TestCase
 {

@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace BayAreaWebPro\SearchableResource\Tests;
+namespace BayAreaWebPro\SearchableResource\Tests\Unit;
 
-use BayAreaWebPro\SearchableResource\SearchableResource;
 use BayAreaWebPro\SearchableResource\SearchableResourceBuilder;
 use BayAreaWebPro\SearchableResource\SearchableResourceServiceProvider;
+use BayAreaWebPro\SearchableResource\Tests\TestCase;
 
 class ProviderTest extends TestCase
 {
@@ -26,7 +26,11 @@ class ProviderTest extends TestCase
     {
         $this->assertInstanceOf(
             SearchableResourceBuilder::class,
-            \SearchableResource::getFacadeRoot(), 'Facade can make instance of service.');
+            \SearchableResource::getFacadeRoot(), 'Alias class can make instance of service.');
+
+        $this->assertInstanceOf(
+            SearchableResourceBuilder::class,
+            \BayAreaWebPro\SearchableResource\SearchableResource::getFacadeRoot(), 'Facade can make instance of service.');
     }
 
     public function test_service_can_be_resolved()

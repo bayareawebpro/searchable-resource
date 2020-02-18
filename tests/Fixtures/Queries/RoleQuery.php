@@ -10,16 +10,17 @@ use BayAreaWebPro\SearchableResource\Contracts\ValidatableQuery;
 class RoleQuery extends AbstractQuery implements ConditionalQuery, ValidatableQuery
 {
     protected string $field = 'role';
+    protected string $attribute = 'role';
 
     public function __invoke(Builder $builder): void
     {
-        $builder->where('role', $this->getValue());
+        $builder->where($this->getAttribute(), $this->getValue());
     }
 
     public function rules(): array
     {
         return [
-            [$this->field => 'sometimes|string|in:admin,editor,guest'],
+            [$this->getField() => 'sometimes|string|in:admin,editor,guest'],
         ];
     }
 }

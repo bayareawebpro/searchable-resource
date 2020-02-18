@@ -113,6 +113,8 @@ Queries are expressed as invokable classes that extend the `AbstractQuery` class
 which contains logic per request field.  Queries can apply to multiple attributes/columns
 but should pertain to a single input.  
 
+`php artisan make:searchable NameQuery`
+
 The following is an example of a generic name query:  
 
 ```php
@@ -180,7 +182,6 @@ merged into the validator.  Otherwise the rules will be ignored.
 namespace App\Queries;
  
 use BayAreaWebPro\SearchableResource\AbstractQuery;
-use BayAreaWebPro\SearchableResource\Contracts\ConditionalQuery;
 use BayAreaWebPro\SearchableResource\Contracts\ValidatableQuery;
  
 class ConditionalRoleQuery extends AbstractQuery implements ValidatableQuery
@@ -315,11 +316,28 @@ making pagination buttons easy to disable via props (Vue | React).
 }
 ```
 
+### With Additional Data
+
+```php
+SearchableResource::make(User::query())
+	->with([
+        'my_key' => []
+    ])
+	->paginate(8);
+```
+
+```json
+{
+    "my_key": [],
+    "data": []
+}
+```
+
 ### Options Formatting
 
 Request options are appended to the output for convenience.  Options can 
 be auto-formatted with labels for usage with forms and filters by calling 
-the `labeled` method on the builder.
+the `labeled()` method on the builder.
 
 ```
 "options": {

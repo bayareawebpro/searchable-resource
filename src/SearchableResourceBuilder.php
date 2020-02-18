@@ -2,36 +2,49 @@
 
 namespace BayAreaWebPro\SearchableResource;
 
+use Illuminate\Http\{
+    Request, JsonResponse
+};
+use Illuminate\Database\Eloquent\{
+    Collection as EloquentCollection, Builder
+};
+
+use Illuminate\Support\Collection;
+use Illuminate\Http\Resources\Json\JsonResource;
+use Symfony\Component\HttpFoundation\Response;
+
 use Illuminate\Contracts\Support\Responsable;
 use Illuminate\Contracts\Pagination\Paginator;
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Collection;
-use Symfony\Component\HttpFoundation\Response;
-use Illuminate\Http\Resources\Json\JsonResource;
+use BayAreaWebPro\SearchableResource\Contracts\{
+    ConditionalQuery, ValidatableQuery, ProvidesOptions
+};
 
-use Illuminate\Validation\Rule;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Collection as EloquentCollection;
-
-use BayAreaWebPro\SearchableResource\Contracts\ConditionalQuery;
-use BayAreaWebPro\SearchableResource\Contracts\ValidatableQuery;
-
-use BayAreaWebPro\SearchableResource\Concerns\Resourceful;
-use BayAreaWebPro\SearchableResource\Concerns\Appendable;
-use BayAreaWebPro\SearchableResource\Concerns\Orderable;
-use BayAreaWebPro\SearchableResource\Concerns\Paginated;
-use BayAreaWebPro\SearchableResource\Concerns\Sortable;
-use BayAreaWebPro\SearchableResource\Concerns\Labeled;
+use BayAreaWebPro\SearchableResource\Concerns\{
+    Resourceful,
+    Validatable,
+    Appendable,
+    Orderable,
+    Paginated,
+    Selectable,
+    Sortable,
+    Labeled,
+    Optional,
+    Withable
+};
 
 class SearchableResourceBuilder implements Responsable
 {
-    use Labeled;
-    use Sortable;
+    use Resourceful;
+    use Validatable;
+    use Appendable;
+    use Selectable;
     use Orderable;
     use Paginated;
-    use Appendable;
-    use Resourceful;
+    use Sortable;
+    use Optional;
+    use Withable;
+    use Labeled;
 
     protected Request $request;
     protected Builder $query;
@@ -64,7 +77,7 @@ class SearchableResourceBuilder implements Responsable
      * Should use Labels
      * @var bool
      */
-    protected bool $shouldUseLabels = false;
+    protected bool $labeled = false;
 
     /**
      * Appendable Attributes
@@ -73,16 +86,28 @@ class SearchableResourceBuilder implements Responsable
     protected array $appendable = [];
 
     /**
+     * Select Columns
+     * @var array
+     */
+    protected array $select = ['*'];
+
+    /**
      * Allowed Orderable Attributes
      * @var string
      */
     protected string $resource = JsonResource::class;
 
     /**
-     * Invokable Queries
+     * With Additional Data in Response
      * @var array
      */
-    protected array $queries = [];
+    protected array $with = [];
+
+    /**
+     * Additional Options
+     * @var array
+     */
+    protected array $options = [];
 
     /**
      * Request Fields Included in Response Query State.
@@ -115,22 +140,7 @@ class SearchableResourceBuilder implements Responsable
     public static function make(Builder $query): self
     {
         return app(static::class, [
-            'query' => $query
-        ]);
-    }
-
-    /**
-     * Compiled Validation Rules
-     * @return array
-     */
-    public function rules(): array
-    {
-        return array_merge($this->rules, [
-            'search'   => ['sometimes', 'nullable', 'string', 'max:255'],
-            'page'     => ['sometimes', 'numeric', 'min:1', 'max:'.PHP_INT_MAX],
-            'sort'     => ['sometimes', 'string', Rule::in($this->getSortOptions()->all())],
-            'order_by' => ['sometimes', 'string', Rule::in($this->getOrderableOptions()->all())],
-            'per_page' => ['sometimes', 'numeric', Rule::in($this->getPerPageOptions()->all())],
+            'query' => $query,
         ]);
     }
 
@@ -142,9 +152,9 @@ class SearchableResourceBuilder implements Responsable
     public function queries(array $queries): self
     {
         foreach ($queries as $query) {
-            if($query instanceof AbstractQuery){
+            if ($query instanceof AbstractQuery) {
                 $this->query($query);
-            }elseif(class_exists($query) && is_subclass_of($query, AbstractQuery::class)){
+            } elseif (class_exists($query) && is_subclass_of($query, AbstractQuery::class)) {
                 $this->query(app($query));
             }
         }
@@ -159,38 +169,19 @@ class SearchableResourceBuilder implements Responsable
     public function query(AbstractQuery $query)
     {
         $this->withFields([$query->getField()]);
-        if($query instanceof ConditionalQuery){
+        if ($query instanceof ConditionalQuery) {
             $this->query->when($query->applies(), $query);
-        }else{
+        } else {
             $this->query->tap($query);
         }
-        if($query instanceof ValidatableQuery) {
+        if ($query instanceof ValidatableQuery) {
             foreach ($query->rules() as $rule) {
                 $this->withRules($rule);
             }
         }
-        return $this;
-    }
-
-    /**
-     * Append request field to response query state.
-     * @param array $fields
-     * @return $this
-     */
-    public function withFields(array $fields): self
-    {
-        $this->fields = array_merge($this->fields, $fields);
-        return $this;
-    }
-
-    /**
-     * Add validation rules.
-     * @param array $rules
-     * @return $this
-     */
-    public function withRules(array $rules): self
-    {
-        $this->rules = array_merge($this->rules, $rules);
+        if ($query instanceof ProvidesOptions) {
+            $this->options($query->getOptions());
+        }
         return $this;
     }
 
@@ -202,7 +193,7 @@ class SearchableResourceBuilder implements Responsable
     {
         $this->request->validate($this->rules());
         $this->query->orderBy($this->getOrderBy(), $this->getSort());
-        return $this->query->paginate($this->getPerPage());
+        return $this->query->paginate($this->getPerPage(), $this->select);
     }
 
     /**
@@ -213,37 +204,8 @@ class SearchableResourceBuilder implements Responsable
     {
         $this->request->validate($this->rules());
         $this->query->orderBy($this->getOrderBy(), $this->getSort());
-        return $this->query->get();
+        return $this->query->get($this->select);
     }
-
-    /**
-     * Get the response representation of the data.
-     * @param Request $request
-     * @return Response
-     */
-    public function toResponse($request = null): Response
-    {
-        $this->request = $request ?: $this->request;
-
-        if(isset($this->paginate)){
-            $paginator = $this->executePaginatorQuery();
-            $items = $this->appendAppendable($paginator->items());
-
-            return $this->resource::collection($items)->additional([
-                    'pagination' => $this->formatPaginator($paginator),
-                    'query'      => $this->formatQuery($paginator),
-                    'options'    => $this->getOptions(),
-                ])->toResponse($request);
-        }
-
-        $items = $this->appendAppendable($this->executeQuery()->all());
-
-        return $this->resource::collection($items)->additional([
-            'query'      => $this->formatQuery(),
-            'options'    => $this->getOptions()->forget('per_page'),
-        ])->toResponse($request);
-    }
-
 
     /**
      * Get the options for queries.
@@ -254,21 +216,72 @@ class SearchableResourceBuilder implements Responsable
         /**
          * Formatted label / value assoc. arrays
          */
-        if($this->shouldUseLabels){
-            return Collection::make([
+        if ($this->labeled) {
+            return Collection::make(array_merge($this->options, [
                 'orderable' => $this->formatOrderableOptions()->all(),
                 'per_page'  => $this->formatPerPageOptions()->all(),
                 'sort'      => $this->formatSortOptions()->all(),
-            ]);
+            ]));
         }
 
         /**
          * Raw values arrays
          */
-        return Collection::make([
+        return Collection::make(array_merge($this->options, [
             'orderable' => $this->getOrderableOptions()->all(),
             'per_page'  => $this->getPerPageOptions()->all(),
             'sort'      => $this->getSortOptions()->all(),
-        ]);
+        ]));
+    }
+
+    /**
+     * Get the response representation of the data.
+     * @param Request|null $request
+     * @return JsonResponse
+     */
+    public function toResponse($request = null): Response
+    {
+        $this->request = $request ?: $this->request;
+
+        if (isset($this->paginate)) {
+            return $this->formatPaginatedResponse($request);
+        }
+
+        return $this->formatResponse($request);
+    }
+
+    /**
+     * @param Request|null $request
+     * @return JsonResponse
+     */
+    protected function formatPaginatedResponse($request = null): JsonResponse
+    {
+        $paginator = $this->executePaginatorQuery();
+        $items = $this->appendAppendable($paginator->items());
+
+        return $this->resource::collection($items)
+            ->additional(
+                array_merge([
+                    'pagination' => $this->formatPaginator($paginator),
+                    'query'      => $this->formatQuery($paginator),
+                    'options'    => $this->getOptions(),
+                ], $this->with)
+            )->toResponse($request);
+    }
+
+    /**
+     * @param Request|null $request
+     * @return JsonResponse
+     */
+    protected function formatResponse($request = null): JsonResponse
+    {
+        $items = $this->appendAppendable($this->executeQuery()->all());
+
+        return $this->resource::collection($items)->additional(
+            array_merge([
+                'query'   => $this->formatQuery(),
+                'options' => $this->getOptions()->forget('per_page'),
+            ], $this->with)
+        )->toResponse($request);
     }
 }
