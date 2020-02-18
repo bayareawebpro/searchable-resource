@@ -12,6 +12,7 @@ class SelectTest extends TestCase
             'name' => 'Test',
         ]);
         $this->json('get', route('select', []))
+            ->dump()
             ->assertJson([
                 'data' => [
                     [
