@@ -33,7 +33,7 @@ use BayAreaWebPro\SearchableResource\Concerns\Withable;
 use BayAreaWebPro\SearchableResource\Concerns\Whenable;
 use Closure;
 
-class SearchableResourceBuilder implements Responsable
+class SearchableBuilder implements Responsable
 {
     use Macroable;
 

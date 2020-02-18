@@ -65,7 +65,7 @@ use App\Queries\UserSearch;
 use App\Queries\RoleFilter;
 use App\Http\Resources\UserResource;
 use BayAreaWebPro\SearchableResource\SearchableResource;
-use BayAreaWebPro\SearchableResource\SearchableResourceBuilder;
+use BayAreaWebPro\SearchableResource\SearchableBuilder;
 
 SearchableResource::make(User::query())
     ->resource(UserResource::class)
@@ -92,7 +92,7 @@ SearchableResource::make(User::query())
     ->with([
         'my_key' => true
     ])
-    ->when(true, fn(SearchableResourceBuilder $builder)=>$builder
+    ->when(true, fn(SearchableBuilder $builder)=>$builder
         ->with([
             'my_key' => false
         ])
@@ -355,11 +355,11 @@ You can setup a resolving callback in a service provider to pre-bind options to 
 ```php
 
 use BayAreaWebPro\SearchableResource\OptionsFormatter;
-use BayAreaWebPro\SearchableResource\SearchableResourceBuilder;
+use BayAreaWebPro\SearchableResource\SearchableBuilder;
 
 $this->app->resolving(
-    SearchableResourceBuilder::class,
-    function (SearchableResourceBuilder $builder){
+    SearchableBuilder::class,
+    function (SearchableBuilder $builder){
     return $builder
         ->useFormatter(new OptionsFormatter)
         ->labeled(request()->hasSession())
@@ -448,10 +448,40 @@ SearchableResource::make(User::query())
 You can use a callback or invokable class for more control with less method chaining.
 
 ```php
+
+class SessionEnabledQuery{
+    public function __invoke(SearchableBuilder $builder): void 
+    {
+        $builder->labeled();
+    }
+}
+
 SearchableResource::make(User::query())
-    ->when(request()->hasSession(), function(SearchableResourceBuilder $builder){
+    ->when(request()->hasSession(), new SessionEnabledQuery)
+    ->when(request()->hasSession(), function(SearchableBuilder $builder){
         $builder->labeled();
     })
+;
+```
+---
+
+### Tap Callback
+
+Useful for configuring the builder via an invokable class.
+
+```php
+
+class UserSearchable{
+    public function __invoke(SearchableBuilder $builder): void 
+    {
+        $builder->queries([
+            RoleQuery::class
+        ]);
+    }
+}
+
+SearchableResource::make(User::query())
+    ->tap(new UserSearchable)
 ;
 ```
 

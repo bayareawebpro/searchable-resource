@@ -3,7 +3,7 @@
 namespace BayAreaWebPro\SearchableResource\Tests\Feature;
 
 use BayAreaWebPro\SearchableResource\SearchableResource;
-use BayAreaWebPro\SearchableResource\SearchableResourceBuilder;
+use BayAreaWebPro\SearchableResource\SearchableBuilder;
 use BayAreaWebPro\SearchableResource\SearchableResourceServiceProvider;
 use BayAreaWebPro\SearchableResource\Tests\Fixtures\Models\User;
 use BayAreaWebPro\SearchableResource\Tests\TestCase;

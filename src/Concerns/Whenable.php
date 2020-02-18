@@ -19,4 +19,14 @@ trait Whenable{
         }
         return $this;
     }
+
+    /**
+     * When true, callback with builder instance.
+     * @param Closure $closure
+     * @return $this
+     */
+    public function tap($closure): self
+    {
+        return $this->when(true, $closure);
+    }
 }

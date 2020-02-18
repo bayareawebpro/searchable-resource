@@ -5,7 +5,7 @@ namespace BayAreaWebPro\SearchableResource;
 use Illuminate\Support\Facades\Facade;
 
 /**
- * @mixin \BayAreaWebPro\SearchableResource\SearchableResourceBuilder
+ * @mixin \BayAreaWebPro\SearchableResource\SearchableBuilder
  */
 class SearchableResource extends Facade
 {

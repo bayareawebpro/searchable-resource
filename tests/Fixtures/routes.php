@@ -2,7 +2,7 @@
 
 use BayAreaWebPro\SearchableResource\OptionsFormatter;
 use BayAreaWebPro\SearchableResource\SearchableResource;
-use BayAreaWebPro\SearchableResource\SearchableResourceBuilder;
+use BayAreaWebPro\SearchableResource\SearchableBuilder;
 use BayAreaWebPro\SearchableResource\Tests\Fixtures\Models\User;
 use BayAreaWebPro\SearchableResource\Tests\Fixtures\Queries\OptionsQuery;
 use BayAreaWebPro\SearchableResource\Tests\Fixtures\Queries\RoleQuery;
@@ -96,13 +96,13 @@ SearchableResource::make(User::query())
 Route::get('when', fn() => (
 SearchableResource::make(User::query())
     ->when(request()->filled('class'), new class{
-        public function __invoke(SearchableResourceBuilder $builder){
+        public function __invoke(SearchableBuilder $builder){
             $builder->with([
                 'class' => request()->get('class')
             ]);
         }
     })
-    ->when(request()->filled('closure'), function(SearchableResourceBuilder $builder){
+    ->when(request()->filled('closure'), function(SearchableBuilder $builder){
         $builder->with([
             'closure' => request()->get('closure')
         ]);
