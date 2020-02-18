@@ -21,12 +21,39 @@ composer require bayareawebpro/searchable-resource
 
 ## Usage
 
+```php
+use App\User;
+use App\Queries\UserSearch;
+use App\Queries\RoleFilter;
+use App\Http\Resources\UserResource;
+use BayAreaWebPro\SearchableResource\SearchableResource;
+
+SearchableResource::make(User::query())
+    ->resource(UserResource::class)
+    ->queries([
+        UserSearch::class,
+        RoleFilter::class
+    ])
+    ->orderable([
+        'id',
+        'name', 'email', 'role',
+        'created_at', 'updated_at',
+    ])
+    ->appendable([
+        'created_for_humans',
+        'updated_for_humans',
+    ])
+    ->orderBy('updated_at')
+    ->sort('desc')
+    ->paginate(16)
+    ->labeled();
+```
+
 * Sorting ```/my-route?sort=asc```
-* Filtering ```/my-route?my_field=true```
+* Filtering ```/my-route?role=admin```
 * Ordering```/my-route?order_by=name```
 * Searching ```/my-route?search=Taylor```
 * Pagination ```/my-route?page=1&per_page=8```
-
 
 The ```make``` method accepts instances of Eloquent Builder.  SearchableResources 
 implement the `Responsable` interface which allows them to be returned from controllers easily. 
@@ -203,7 +230,7 @@ return $searchable;
 
 Attributes and fields can be appended to the response by using the following methods: 
 
-For model attributes: 
+**For model attributes:** 
 
 ```php
 SearchableResource::make(User::query())
@@ -214,7 +241,7 @@ SearchableResource::make(User::query())
     ]);
 ```
 
-For request fields (appended to the query in response): 
+**For request fields (appended to the query in response):** 
 
 ```php
 SearchableResource::make(User::query())
