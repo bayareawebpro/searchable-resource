@@ -29,17 +29,15 @@ returned from controllers easily.
 The ```make``` method accepts instances of Eloquent Builder.  
 
 ```php
-
 use App\User;
 use App\Post;
 
 use BayAreaWebPro\SearchableResource\SearchableResource;
 
 SearchableResource::make(User::query());
-
-SearchableResource::make(Post::forUser(request()->user()));
+SearchableResource::make(Post::forUser(request()->user())); 
 ```
-
+	
 ### Ordering and Sorting
 
 You can specify as many orderable columns as you wish.
@@ -93,8 +91,9 @@ SearchableResource::make(User::query())
 
 ### Validation
 
-Queries can specify their own validation rules.  The following rules are 
-automatically merged into the collected rules from your queries.  
+Queries can specify their own validation rules by implementing the `ValidatableQuery` 
+contract.  The following rules are automatically merged into the collected rules 
+from your queries.  
 
 ```php
 [
@@ -110,13 +109,11 @@ automatically merged into the collected rules from your queries.
 
 ### Invokable Queries
 
-Queries are expressed as invokable classes which contain logic per request 
-field.  Queries can apply to multiple attributes but should pertain to a 
-single input.  
+Queries are expressed as invokable classes that extend the `AbstractQuery` class 
+which contains logic per request field.  Queries can apply to multiple attributes/columns
+but should pertain to a single input.  
 
-The following is an example of a generic name query that works on multiple 
-columns and a relationship.  We extract the most generic term for the overall 
-query then we can use that value to construct the attribute names.
+The following is an example of a generic name query:  
 
 ```php
  <?php declare(strict_types=1);
@@ -126,15 +123,11 @@ query then we can use that value to construct the attribute names.
  use Illuminate\Database\Eloquent\Builder;
  use BayAreaWebPro\SearchableResource\AbstractQuery;
  
-class NameQuery extends AbstractQuery
+class NameLikeQuery extends AbstractQuery
 {
-    protected string $field = 'name';
+    protected string $field = 'search';
     protected string $attribute = 'name';
 
-    /**
-    * username, first_name, last_name
-    * @param Builder $builder
-    */
     public function __invoke(Builder $builder): void
     {
         $builder->where($this->getAttribute(), "like", "%{$this->getValue()}%");
