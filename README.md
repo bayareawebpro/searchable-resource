@@ -54,11 +54,10 @@ as you wish.  Queries can specify their own validation rules.
 
 ```php
 SearchableResource::make(User::query())
+	->orderable(['name', 'email'])
 	->orderBy('name')
 	->sort('desc')
-	->orderable([
-		'name'
-	]);
+    ->paginate(16);
 ```
 
 ## Invokable Queries
@@ -90,7 +89,7 @@ class NameQuery extends AbstractQuery
     */
     public function __invoke(Builder $builder): void
     {
-        $builder->where("{$this->getAttribute()}", "like", "%{$this->getValue()}%");
+        $builder->where($this->getAttribute(), "like", "%{$this->getValue()}%");
     }
 }
 ```
@@ -99,6 +98,10 @@ class NameQuery extends AbstractQuery
 
 Queries that implement the `ConditionalQuery` Contract will only be applied when 
 their `applies` method returns `true`. 
+ 
+By default an query that extends `AbstractQuery` class using the `ConditionalQuery` contract 
+already implements this method for you by calling the `filled` method on the request.  
+Override the parent method to customize.
 
 ```php
 <?php declare(strict_types=1);
@@ -120,7 +123,7 @@ class ConditionalRoleQuery extends AbstractQuery implements ConditionalQuery
 
     public function applies(): bool
     {
-    	return $this->request->filled($this->field);
+    	return parent::applies() && in_array($this->getValue(), ['user', 'admin']);
     }
 }
 ```
@@ -129,9 +132,6 @@ class ConditionalRoleQuery extends AbstractQuery implements ConditionalQuery
 
 Queries that implement the `ValidatableQuery` Contract will have their returned rules 
 merged into the validator.  Otherwise the rules will be ignored.
- 
-By default the `AbstractQuery` class already implements this method for you by 
-calling the `filled` method on the request.  Override the parent method to customize.
 
 ```php
 <?php declare(strict_types=1);
@@ -142,7 +142,7 @@ use BayAreaWebPro\SearchableResource\AbstractQuery;
 use BayAreaWebPro\SearchableResource\Contracts\ConditionalQuery;
 use BayAreaWebPro\SearchableResource\Contracts\ValidatableQuery;
  
-class ConditionalRoleQuery extends AbstractQuery implements ConditionalQuery, ValidatableQuery
+class ConditionalRoleQuery extends AbstractQuery implements ValidatableQuery
 {
 
     protected string $field = 'role';
@@ -153,15 +153,10 @@ class ConditionalRoleQuery extends AbstractQuery implements ConditionalQuery, Va
         $builder->where($this->getAttribute(), $this->getValue());
     }
 
-    public function applies(): bool
-    {
-    	return $this->request->filled($this->field);
-    }
-
     public function rules(): array
     {
         return [
-            [$this->getField() => 'sometimes|string|in:admin,editor,guest'],
+            [$this->getField() => 'required|string|in:admin,editor,guest'],
         ];
     }
 }
