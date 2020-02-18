@@ -41,18 +41,6 @@ trait Paginated{
     }
 
     /**
-     * Get per-page options.
-     * @return Collection
-     */
-    protected function formatPerPageOptions(): Collection
-    {
-        return $this->getPerPageOptions()->map(fn($entry) => [
-            'label' => Str::title("$entry / page"),
-            'value' => $entry,
-        ]);
-    }
-
-    /**
      * Format the paginator attributes.
      * @param Paginator $paginator
      * @return array
