@@ -11,7 +11,7 @@ class MakeQueryCommand extends GeneratorCommand{
      * The name and signature of the console command.
      * @var string
      */
-    protected $signature = 'make:searchable {name : The required name of the query class} ';
+    protected $signature = 'make:searchable {name : The required name of the query class}';
 
     /**
      * The console command description.
@@ -31,7 +31,7 @@ class MakeQueryCommand extends GeneratorCommand{
      */
     protected function getStub()
     {
-        return __DIR__ . '/../stubs/Query.stub';
+        return __DIR__ . '/Stubs/Query.stub';
     }
 
     /**
