@@ -180,7 +180,7 @@ class SearchableResourceBuilder implements Responsable
             }
         }
         if ($query instanceof ProvidesOptions) {
-            $this->options($query->getOptions());
+            $this->options($query->options());
         }
         return $this;
     }
