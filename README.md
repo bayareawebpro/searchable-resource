@@ -65,6 +65,7 @@ use App\Queries\UserSearch;
 use App\Queries\RoleFilter;
 use App\Http\Resources\UserResource;
 use BayAreaWebPro\SearchableResource\SearchableResource;
+use BayAreaWebPro\SearchableResource\SearchableResourceBuilder;
 
 SearchableResource::make(User::query())
     ->resource(UserResource::class)
@@ -91,6 +92,11 @@ SearchableResource::make(User::query())
     ->with([
         'my_key' => true
     ])
+    ->when(true, fn(SearchableResourceBuilder $builder)=>$builder
+        ->with([
+            'my_key' => false
+        ])
+    )
     ->orderBy('updated_at')
     ->sort('desc')
     ->paginate(16)
@@ -110,6 +116,7 @@ which resource class should be used to map your models when building the respons
 SearchableResource::make(User::query())
     ->resource(UserResource::class);
 ```
+
 ---
 
 ### Validation
@@ -375,6 +382,21 @@ SearchableResource::make(User::query())
 }
 ```
 
+---
+
+### When Condition Callback
+
+You can use a callback or invokable class for more control with less method chaining.
+
+```php
+SearchableResource::make(User::query())
+    ->when(request()->hasSession(), function(SearchableResourceBuilder $builder){
+        $builder->labeled();
+    })
+;
+```
+
+---
 
 ### Response Output
 

@@ -1,6 +1,7 @@
 <?php
 
 use BayAreaWebPro\SearchableResource\SearchableResource;
+use BayAreaWebPro\SearchableResource\SearchableResourceBuilder;
 use BayAreaWebPro\SearchableResource\Tests\Fixtures\Models\User;
 use BayAreaWebPro\SearchableResource\Tests\Fixtures\Queries\OptionsQuery;
 use BayAreaWebPro\SearchableResource\Tests\Fixtures\Queries\RoleQuery;
@@ -85,6 +86,15 @@ SearchableResource::make(User::query())
         'with' => true,
     ])
 ))->name('with');
+/**
+ * With Data Test
+ */
+Route::get('when', fn() => (
+SearchableResource::make(User::query())
+    ->when(request()->filled('when'), fn(SearchableResourceBuilder $builder)=>($builder->with([
+        'with' => request()->get('when')
+    ])))
+))->name('when');
 
 /**
  * With Options
