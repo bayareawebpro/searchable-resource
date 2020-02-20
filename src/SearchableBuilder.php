@@ -183,12 +183,12 @@ class SearchableBuilder implements Responsable, Arrayable
             $applies = $query->getApplies();
             $this->query->when($applies, $query);
             if($applies && $query instanceof ValidatableQuery){
-                $this->withRules($query->getRules());
+                $this->rules($query->getRules());
             }
         } else{
             $this->query->tap($query);
             if($query instanceof ValidatableQuery){
-                $this->withRules($query->getRules());
+                $this->rules($query->getRules());
             }
         }
         if($query instanceof ProvidesOptions){
@@ -204,7 +204,7 @@ class SearchableBuilder implements Responsable, Arrayable
      */
     protected function executePaginatorQuery(): Paginator
     {
-        $this->request->validate($this->rules());
+        $this->request->validate($this->compileRules());
         $this->query->orderBy($this->getOrderBy(), $this->getSort());
         return $this->query->paginate($this->getPerPage(), $this->select);
     }
@@ -215,7 +215,7 @@ class SearchableBuilder implements Responsable, Arrayable
      */
     protected function executeQuery(): EloquentCollection
     {
-        $this->request->validate($this->rules());
+        $this->request->validate($this->compileRules());
         $this->query->orderBy($this->getOrderBy(), $this->getSort());
         return $this->query->get($this->select);
     }

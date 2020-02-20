@@ -89,6 +89,9 @@ SearchableResource::make(User::query())
     ->fields([
        'my_filter_key'
     ])
+    ->rules([
+       'my_filter_key' => 'required'
+    ])
     ->with([
         'my_key' => true
     ])
@@ -176,7 +179,7 @@ class ConditionalRoleQuery extends AbstractQuery implements ConditionalQuery
         $builder->where($this->getAttribute(), $this->getValue());
     }
 
-    public function applies(): bool
+    public function getApplies(): bool
     {
     	return parent::applies() && in_array($this->getValue(), ['user', 'admin']);
     }
