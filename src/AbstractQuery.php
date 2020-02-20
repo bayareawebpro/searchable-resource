@@ -53,20 +53,9 @@ abstract class AbstractQuery implements InvokableQuery
      * Conditional Query
      * @return bool
      */
-    public function applies(): bool
+    public function getApplies(): bool
     {
         return $this->request->filled($this->field);
-    }
-
-    /**
-     * Validatable Query
-     * @return array
-     */
-    public function rules(): array
-    {
-        return [
-            $this->field => ['required'],
-        ];
     }
 
     /**

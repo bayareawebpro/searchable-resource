@@ -11,7 +11,7 @@ trait Validatable{
      * @param array $rules
      * @return $this
      */
-    public function withRules(array $rules): self
+    public function rules(array $rules): self
     {
         $this->rules = array_merge($this->rules, $rules);
         return $this;
@@ -21,7 +21,7 @@ trait Validatable{
      * Compiled Validation Rules
      * @return array
      */
-    public function rules(): array
+    public function compileRules(): array
     {
         return array_merge($this->rules, [
             'search'   => ['sometimes', 'nullable', 'string', 'max:255'],
