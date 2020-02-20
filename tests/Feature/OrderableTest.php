@@ -2,7 +2,7 @@
 
 namespace BayAreaWebPro\SearchableResource\Tests\Feature;
 
-use BayAreaWebPro\SearchableResource\Tests\Fixtures\Models\User;
+use BayAreaWebPro\SearchableResource\Tests\Fixtures\Models\MockUser;
 use BayAreaWebPro\SearchableResource\Tests\TestCase;
 
 class OrderableTest extends TestCase
@@ -10,15 +10,15 @@ class OrderableTest extends TestCase
 
     public function test_default_order_by_id_desc()
     {
-        factory(User::class)->create([
+        factory(MockUser::class)->create([
             'name' => 'A',
             'role' => 'admin',
         ]);
-        factory(User::class)->create([
+        factory(MockUser::class)->create([
             'name' => 'B',
             'role' => 'user',
         ]);
-        factory(User::class)->create([
+        factory(MockUser::class)->create([
             'name' => 'C',
             'role' => 'guest',
         ]);
@@ -40,15 +40,15 @@ class OrderableTest extends TestCase
 
     public function test_order_by_name_desc()
     {
-        factory(User::class)->create([
+        factory(MockUser::class)->create([
             'name' => 'A',
             'role' => 'admin',
         ]);
-        factory(User::class)->create([
+        factory(MockUser::class)->create([
             'name' => 'B',
             'role' => 'user',
         ]);
-        factory(User::class)->create([
+        factory(MockUser::class)->create([
             'name' => 'C',
             'role' => 'guest',
         ]);
@@ -73,15 +73,15 @@ class OrderableTest extends TestCase
 
     public function test_order_by_role_desc()
     {
-        factory(User::class)->create([
+        factory(MockUser::class)->create([
             'name' => 'A',
             'role' => 'admin',
         ]);
-        factory(User::class)->create([
+        factory(MockUser::class)->create([
             'name' => 'B',
             'role' => 'user',
         ]);
-        factory(User::class)->create([
+        factory(MockUser::class)->create([
             'name' => 'C',
             'role' => 'guest',
         ]);

@@ -162,7 +162,10 @@ class SearchableBuilder implements Responsable, Arrayable
         foreach ($queries as $query) {
             if ($query instanceof AbstractQuery) {
                 $this->query($query);
-            } elseif (class_exists($query) && is_subclass_of($query, AbstractQuery::class)) {
+            } elseif (
+                is_string($query)
+                && class_exists($query)
+                && is_subclass_of($query, AbstractQuery::class)) {
                 $this->query(app($query));
             }
         }
@@ -177,18 +180,20 @@ class SearchableBuilder implements Responsable, Arrayable
     public function query(AbstractQuery $query)
     {
         if ($query instanceof ConditionalQuery) {
-            $this->query->when($query->applies(), $query);
-        } else {
+            $applies = $query->applies();
+            $this->query->when($applies, $query);
+            $this->when($applies && $query instanceof ValidatableQuery,
+                fn()=>$this->withRules($query->rules())
+            );
+        } else{
             $this->query->tap($query);
+            $this->when($query instanceof ValidatableQuery,
+                fn()=>$this->withRules($query->rules())
+            );
         }
-        if ($query instanceof ValidatableQuery) {
-            foreach ($query->rules() as $rule) {
-                $this->withRules($rule);
-            }
-        }
-        if ($query instanceof ProvidesOptions) {
-            $this->options($query->options());
-        }
+        $this->when($query instanceof ProvidesOptions,
+            fn()=>$this->options($query->options())
+        );
         $this->fields([$query->getField()]);
         return $this;
     }
@@ -231,9 +236,9 @@ class SearchableBuilder implements Responsable, Arrayable
                 ->all();
 
             return Collection::make(array_merge([
-                'orderable' => $this->formatOptions('orderable', $this->getOrderableOptions())->all(),
-                'per_page'  => $this->formatOptions('per_page', $this->getPerPageOptions())->all(),
-                'sort'      => $this->formatOptions('sort', $this->getSortOptions())->all(),
+                'order_by' => $this->formatOptions('order_by', $this->getOrderableOptions())->all(),
+                'sort'     => $this->formatOptions('sort', $this->getSortOptions())->all(),
+                'per_page' => $this->formatOptions('per_page', $this->getPerPageOptions())->all(),
             ], $options));
         }
 
@@ -241,9 +246,9 @@ class SearchableBuilder implements Responsable, Arrayable
          * Raw values arrays
          */
         return Collection::make(array_merge([
-            'orderable' => $this->getOrderableOptions()->all(),
-            'per_page'  => $this->getPerPageOptions()->all(),
-            'sort'      => $this->getSortOptions()->all(),
+            'order_by' => $this->getOrderableOptions()->all(),
+            'sort'     => $this->getSortOptions()->all(),
+            'per_page' => $this->getPerPageOptions()->all(),
         ], $this->options));
     }
 
@@ -276,7 +281,7 @@ class SearchableBuilder implements Responsable, Arrayable
         if (isset($this->paginate)) {
             $paginator = $this->executePaginatorQuery();
             return array_merge([
-                'data' => $this->appendAppendable($paginator->items())
+                'data' => $this->appendAppendable($paginator->items()),
             ], $this->getPaginatedAdditional($paginator), $this->with);
         }
 

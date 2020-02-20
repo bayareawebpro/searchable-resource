@@ -45,7 +45,7 @@ class DummyClass extends AbstractQuery
     public function rules(): array
     {
         return [
-            //[$this->getField() => 'sometimes|nullable|string'],
+            //$this->getField() => 'sometimes|nullable|string',
         ];
     }
 

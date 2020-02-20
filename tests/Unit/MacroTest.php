@@ -3,7 +3,7 @@
 namespace BayAreaWebPro\SearchableResource\Tests\Unit;
 
 use BayAreaWebPro\SearchableResource\SearchableBuilder;
-use BayAreaWebPro\SearchableResource\Tests\Fixtures\Models\User;
+use BayAreaWebPro\SearchableResource\Tests\Fixtures\Models\MockUser;
 use BayAreaWebPro\SearchableResource\Tests\TestCase;
 use Illuminate\Http\Request;
 
@@ -15,7 +15,7 @@ class MacroTest extends TestCase
             return $this->request;
         });
 
-        $builder = SearchableBuilder::make(User::query());
+        $builder = SearchableBuilder::make(MockUser::query());
 
         $this->assertInstanceOf(Request::class, $builder->getRequest());
     }
