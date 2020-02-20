@@ -2,10 +2,7 @@
 
 namespace BayAreaWebPro\SearchableResource\Tests\Feature;
 
-use BayAreaWebPro\SearchableResource\SearchableResource;
-use BayAreaWebPro\SearchableResource\SearchableBuilder;
-use BayAreaWebPro\SearchableResource\SearchableResourceServiceProvider;
-use BayAreaWebPro\SearchableResource\Tests\Fixtures\Models\User;
+use BayAreaWebPro\SearchableResource\Tests\Fixtures\Models\MockUser;
 use BayAreaWebPro\SearchableResource\Tests\TestCase;
 
 class PaginationTest extends TestCase
@@ -23,7 +20,7 @@ class PaginationTest extends TestCase
 
     public function test_valid_pagination()
     {
-        factory(User::class, 6)->create();
+        factory(MockUser::class, 6)->create();
 
         $this->json('get', route('paginated', [
             'per_page' => 4,
@@ -66,7 +63,7 @@ class PaginationTest extends TestCase
 
     public function test_non_paginated()
     {
-        factory(User::class, 6)->create();
+        factory(MockUser::class, 6)->create();
 
         $this->json('get', route('non-paginated', [
             'per_page' => 4,
@@ -74,7 +71,7 @@ class PaginationTest extends TestCase
         ->assertJson([
             'options' =>[
                 'sort' => [],
-                'orderable' => [],
+                'order_by' => [],
             ],
         ], true)
         ->assertJsonMissing([

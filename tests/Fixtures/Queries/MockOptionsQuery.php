@@ -5,11 +5,11 @@ namespace BayAreaWebPro\SearchableResource\Tests\Fixtures\Queries;
 use BayAreaWebPro\SearchableResource\Contracts\ProvidesOptions;
 use BayAreaWebPro\SearchableResource\AbstractQuery;
 
-class OptionsQuery extends AbstractQuery implements ProvidesOptions
+class MockOptionsQuery extends AbstractQuery implements ProvidesOptions
 {
     protected string $field = 'option';
 
-    public function options(): array
+    public function getOptions(): array
     {
         return [
             $this->getField() => [

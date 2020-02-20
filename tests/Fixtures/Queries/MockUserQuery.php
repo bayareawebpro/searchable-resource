@@ -8,7 +8,7 @@ use BayAreaWebPro\SearchableResource\AbstractQuery;
 use BayAreaWebPro\SearchableResource\Contracts\ConditionalQuery;
 use BayAreaWebPro\SearchableResource\Contracts\ValidatableQuery;
 
-class UserQuery extends AbstractQuery implements ConditionalQuery, ValidatableQuery
+class MockUserQuery extends AbstractQuery implements ConditionalQuery, ValidatableQuery
 {
     protected string $field = 'search';
 
@@ -21,10 +21,10 @@ class UserQuery extends AbstractQuery implements ConditionalQuery, ValidatableQu
         );
     }
 
-    public function rules(): array
+    public function getRules(): array
     {
         return [
-            [$this->field => 'sometimes|string|max:255'],
+            $this->getField() => 'sometimes|string|max:255',
         ];
     }
 }

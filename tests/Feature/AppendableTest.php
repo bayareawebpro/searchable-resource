@@ -2,19 +2,14 @@
 
 namespace BayAreaWebPro\SearchableResource\Tests\Feature;
 
-use BayAreaWebPro\SearchableResource\Tests\Fixtures\Queries\UserQuery;
-use BayAreaWebPro\SearchableResource\Tests\Fixtures\Resources\MockResource;
-use BayAreaWebPro\SearchableResource\SearchableResource;
-use BayAreaWebPro\SearchableResource\Tests\Fixtures\Models\User;
+use BayAreaWebPro\SearchableResource\Tests\Fixtures\Models\MockUser;
 use BayAreaWebPro\SearchableResource\Tests\TestCase;
-use Illuminate\Foundation\Testing\TestResponse;
-use Illuminate\Validation\ValidationException;
 
 class AppendableTest extends TestCase
 {
     public function test_will_append_appendable()
     {
-        factory(User::class)->create([
+        factory(MockUser::class)->create([
             'name' => 'Test',
         ]);
         $this->json('get', route('appendable', []))->assertJson([
@@ -29,7 +24,7 @@ class AppendableTest extends TestCase
 
     public function test_will_append_fields_from_query()
     {
-        factory(User::class)->create([
+        factory(MockUser::class)->create([
             'name' => 'Test',
         ]);
 

@@ -5,5 +5,5 @@ namespace BayAreaWebPro\SearchableResource\Contracts;
 
 interface ValidatableQuery
 {
-    public function rules(): array;
+    public function getRules(): array;
 }

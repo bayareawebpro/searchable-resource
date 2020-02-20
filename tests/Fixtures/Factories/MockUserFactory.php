@@ -5,10 +5,10 @@
 
 use Faker\Generator as Faker;
 use Illuminate\Database\Eloquent\Factory;
-use BayAreaWebPro\SearchableResource\Tests\Fixtures\Models\User;
+use BayAreaWebPro\SearchableResource\Tests\Fixtures\Models\MockUser;
 use Illuminate\Support\Str;
 
-$factory->define(User::class, function (Faker $faker) {
+$factory->define(MockUser::class, function (Faker $faker) {
     return [
         'name' => $faker->name,
         'email' => $faker->unique()->safeEmail,

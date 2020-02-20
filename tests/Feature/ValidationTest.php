@@ -1,7 +1,6 @@
 <?php declare(strict_types=1);
 
 namespace BayAreaWebPro\SearchableResource\Tests\Feature;
-
 use BayAreaWebPro\SearchableResource\Tests\TestCase;
 use Illuminate\Support\Str;
 
@@ -12,10 +11,10 @@ class ValidationTest extends TestCase
         $this->json('get', route('validation', [
             'role' => 'super-user' //Not In allowed values
         ]))
-            ->assertStatus(422)
-            ->assertJsonValidationErrors([
-                'role',
-            ]);
+        ->assertStatus(422)
+        ->assertJsonValidationErrors([
+            'role',
+        ]);
     }
 
     public function test_invalid_search()
@@ -23,9 +22,9 @@ class ValidationTest extends TestCase
         $this->json('get', route('validation', [
             'search' => Str::random(600),
         ]))
-            ->assertStatus(422)
-            ->assertJsonValidationErrors([
-                'search',
-            ]);
+        ->assertStatus(422)
+        ->assertJsonValidationErrors([
+            'search',
+        ]);
     }
 }

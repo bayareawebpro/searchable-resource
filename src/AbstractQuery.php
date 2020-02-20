@@ -65,7 +65,7 @@ abstract class AbstractQuery implements InvokableQuery
     public function rules(): array
     {
         return [
-            [$this->field => ['required']],
+            $this->field => ['required'],
         ];
     }
 

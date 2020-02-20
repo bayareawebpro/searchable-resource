@@ -2,22 +2,22 @@
 
 namespace BayAreaWebPro\SearchableResource\Tests\Feature;
 
-use BayAreaWebPro\SearchableResource\Tests\Fixtures\Models\User;
+use BayAreaWebPro\SearchableResource\Tests\Fixtures\Models\MockUser;
 use BayAreaWebPro\SearchableResource\Tests\TestCase;
 
 class QueryTest extends TestCase
 {
     public function test_default_query()
     {
-        factory(User::class)->create([
+        factory(MockUser::class)->create([
             'name'  => 'Tester 1',
             'email' => 'tester1@test.com',
         ]);
-        factory(User::class)->create([
+        factory(MockUser::class)->create([
             'name'  => 'Tester 2',
             'email' => 'tester2@test.com',
         ]);
-        factory(User::class)->create([
+        factory(MockUser::class)->create([
             'name'  => 'Tester 3',
             'email' => 'tester3@test.com',
         ]);
@@ -35,20 +35,21 @@ class QueryTest extends TestCase
 
     public function test_search_for_name()
     {
-        factory(User::class)->create([
+        factory(MockUser::class)->create([
             'name'  => 'Tester 1',
             'email' => 'tester1@test.com',
         ]);
-        factory(User::class)->create([
+        factory(MockUser::class)->create([
             'name'  => 'Tester 2',
             'email' => 'tester2@test.com',
         ]);
-        factory(User::class)->create([
+        factory(MockUser::class)->create([
             'name'  => 'Tester 3',
             'email' => 'tester3@test.com',
         ]);
 
         $this->json('get', route('queries', ['search' => 'Tester 3']))
+            ->dump()
             ->assertOk()
             ->assertJson([
                 'data'  => [
@@ -69,15 +70,15 @@ class QueryTest extends TestCase
 
     public function test_search_for_email()
     {
-        factory(User::class)->create([
+        factory(MockUser::class)->create([
             'name'  => 'Tester 1',
             'email' => 'tester1@test.com',
         ]);
-        factory(User::class)->create([
+        factory(MockUser::class)->create([
             'name'  => 'Tester 2',
             'email' => 'tester2@test.com',
         ]);
-        factory(User::class)->create([
+        factory(MockUser::class)->create([
             'name'  => 'Tester 3',
             'email' => 'tester3@test.com',
         ]);
@@ -94,17 +95,17 @@ class QueryTest extends TestCase
 
     public function test_filter_by_role()
     {
-        factory(User::class)->create([
+        factory(MockUser::class)->create([
             'name'  => 'Tester 1',
             'email' => 'tester1@test.com',
             'role' => 'admin',
         ]);
-        factory(User::class)->create([
+        factory(MockUser::class)->create([
             'name'  => 'Tester 2',
             'email' => 'tester2@test.com',
             'role' => 'editor',
         ]);
-        factory(User::class)->create([
+        factory(MockUser::class)->create([
             'name'  => 'Tester 3',
             'email' => 'tester3@test.com',
             'role' => 'guest',
