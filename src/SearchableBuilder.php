@@ -180,7 +180,7 @@ class SearchableBuilder implements Responsable, Arrayable
     public function query(AbstractQuery $query)
     {
         if ($query instanceof ConditionalQuery) {
-            $applies = $query->applies();
+            $applies = $query->getApplies();
             $this->query->when($applies, $query);
             if($applies && $query instanceof ValidatableQuery){
                 $this->withRules($query->getRules());

@@ -4,5 +4,5 @@ namespace BayAreaWebPro\SearchableResource\Contracts;
 
 interface ConditionalQuery
 {
-    public function applies(): bool;
+    public function getApplies(): bool;
 }
