@@ -182,18 +182,18 @@ class SearchableBuilder implements Responsable, Arrayable
         if ($query instanceof ConditionalQuery) {
             $applies = $query->applies();
             $this->query->when($applies, $query);
-            $this->when($applies && $query instanceof ValidatableQuery,
-                fn()=>$this->withRules($query->rules())
-            );
+            if($applies && $query instanceof ValidatableQuery){
+                $this->withRules($query->getRules());
+            }
         } else{
             $this->query->tap($query);
-            $this->when($query instanceof ValidatableQuery,
-                fn()=>$this->withRules($query->rules())
-            );
+            if($query instanceof ValidatableQuery){
+                $this->withRules($query->getRules());
+            }
         }
-        $this->when($query instanceof ProvidesOptions,
-            fn()=>$this->options($query->options())
-        );
+        if($query instanceof ProvidesOptions){
+            $this->withOptions($query->getOptions());
+        }
         $this->fields([$query->getField()]);
         return $this;
     }

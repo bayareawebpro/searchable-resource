@@ -225,7 +225,7 @@ class ConditionalRoleQuery extends AbstractQuery implements ValidatableQuery
         $builder->where($this->getAttribute(), $this->getValue());
     }
 
-    public function rules(): array
+    public function getRules(): array
     {
         return [
             $this->getField() => 'required|string|in:admin,editor,guest',
@@ -278,7 +278,7 @@ class ProvidesOptionsQuery extends AbstractQuery implements ProvidesOptions
         $builder->where($this->getAttribute(), $this->getValue());
     }
 
-    public function options(): array
+    public function getOptions(): array
     {
         return [
             $this->getField() => [

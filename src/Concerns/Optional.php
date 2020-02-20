@@ -14,7 +14,7 @@ trait Optional
      * @param array $additional
      * @return $this
      */
-    public function options(array $additional): self
+    public function withOptions(array $additional): self
     {
         $this->options = array_merge($this->options, $additional);
         return $this;

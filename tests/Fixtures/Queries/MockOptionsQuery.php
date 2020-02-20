@@ -9,7 +9,7 @@ class MockOptionsQuery extends AbstractQuery implements ProvidesOptions
 {
     protected string $field = 'option';
 
-    public function options(): array
+    public function getOptions(): array
     {
         return [
             $this->getField() => [

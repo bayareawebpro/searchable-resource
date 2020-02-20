@@ -4,5 +4,5 @@ namespace BayAreaWebPro\SearchableResource\Contracts;
 
 interface ProvidesOptions
 {
-    public function options(): array;
+    public function getOptions(): array;
 }

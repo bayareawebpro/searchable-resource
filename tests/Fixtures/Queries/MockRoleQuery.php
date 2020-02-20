@@ -17,7 +17,7 @@ class MockRoleQuery extends AbstractQuery implements ConditionalQuery, Validatab
         $builder->where($this->getAttribute(), $this->getValue());
     }
 
-    public function rules(): array
+    public function getRules(): array
     {
         return [
             $this->getField() => 'sometimes|string|in:admin,editor,guest',
