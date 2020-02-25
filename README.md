@@ -181,7 +181,7 @@ class ConditionalRoleQuery extends AbstractQuery implements ConditionalQuery
 
     public function getApplies(): bool
     {
-    	return parent::applies() && in_array($this->getValue(), ['user', 'admin']);
+    	return parent::getApplies() && in_array($this->getValue(), ['user', 'admin']);
     }
 }
 ```
