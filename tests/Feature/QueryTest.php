@@ -49,7 +49,6 @@ class QueryTest extends TestCase
         ]);
 
         $this->json('get', route('queries', ['search' => 'Tester 3']))
-            ->dump()
             ->assertOk()
             ->assertJson([
                 'data'  => [
