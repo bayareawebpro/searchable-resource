@@ -900,9 +900,10 @@ making pagination buttons easy to disable via props (Vue | React).
 ```
 
 ### RoadMap:
-* Add methods for appending data.
-* Add interface for appending options from queries.
-* You decide...
+
+✔️ Add methods for appending data.
+✔️ Add interface for appending options from queries.
+❓  You decide...
 
 ### Testing
 
