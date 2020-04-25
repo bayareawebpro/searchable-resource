@@ -38,4 +38,11 @@ class ProviderTest extends TestCase
         $instance = app('searchable-resource');
         $this->assertTrue($instance instanceof SearchableBuilder);
     }
+
+    public function test_declares_provided()
+    {
+        $this->assertTrue(in_array('searchable-resource',
+                collect(app()->getProviders(SearchableResourceServiceProvider::class))->first()->provides())
+        );
+    }
 }
