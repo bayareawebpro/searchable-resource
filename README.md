@@ -1,25 +1,20 @@
 # Laravel Searchable Resource Builder
 
-![CI](https://github.com/bayareawebpro/laravel-simple-csv/workflows/ci/badge.svg)
-![MIT](https://img.shields.io/badge/License-MIT-success.svg)
+![CI](https://github.com/bayareawebpro/searchable-resource/workflows/ci/badge.svg)
+![Coverage](https://codecov.io/gh/bayareawebpro/searchable-resource/branch/master/graph/badge.svg)
 ![Downloads](https://img.shields.io/packagist/dt/bayareawebpro/searchable-resource.svg)
 ![Version](https://img.shields.io/github/v/release/bayareawebpro/searchable-resource.svg)
+![MIT](https://img.shields.io/badge/License-MIT-success.svg)
 
 Searchable Resource Builder is an abstraction for building 
-searchable resource responses in Laravel applications.
-
-Extract query logic into reusable chunks while using a fluent builder 
-interface for dealing with searchable / filterable / sortable requests 
-and JSON / API Resources.
-
-## Installation
-You can install the package via composer:
+searchable resource responses in Laravel applications. Extract 
+query logic into reusable chunks while using a fluent builder 
+interface for dealing with searchable / filterable / sortable 
+requests and JSON / API Resources.
 
 ```bash
 composer require bayareawebpro/searchable-resource
 ```
-
----
 
 ### Basic Usage
 
