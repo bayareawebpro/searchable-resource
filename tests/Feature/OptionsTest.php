@@ -6,14 +6,28 @@ use BayAreaWebPro\SearchableResource\Tests\TestCase;
 
 class OptionsTest extends TestCase
 {
-    public function test_will_append_options_from_rules()
+    public function test_will_append_options_from_queries()
     {
         $this->json('get', route('options', []))
             ->assertJson([
                 'options' => [
-                    'option' => ['my_option']
-                ]
-            ])
-        ;
+                    'option' => ['my_option'],
+                ],
+            ]);
+    }
+
+    public function test_will_format_options_from_queries()
+    {
+        $this->json('get', route('options', ['formatted' => true]))
+            ->assertJson([
+                'options' => [
+                    'option' => [
+                        [
+                            'label' => 'My Option',
+                            'value' => 'my_option',
+                        ],
+                    ],
+                ],
+            ]);
     }
 }
