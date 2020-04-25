@@ -894,8 +894,6 @@ making pagination buttons easy to disable via props (Vue | React).
 </template>
 ```
 
----
-
 ### Testing
 
 ``` bash
