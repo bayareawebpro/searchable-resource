@@ -894,36 +894,9 @@ making pagination buttons easy to disable via props (Vue | React).
 </template>
 ```
 
-### RoadMap:
-
-✔️ Add methods for appending data.
-✔️ Add interface for appending options from queries.
-❓  You decide...
-
 ### Testing
 
 ``` bash
 composer test
 composer lint
 ```
-
-### Changelog
-
-Please see [CHANGELOG](CHANGELOG.md) for more information what has changed recently.
-
-## Contributing
-
-Please see [CONTRIBUTING](CONTRIBUTING.md) for details.
-
-### Security
-
-If you discover any security related issues, please email dan@bayareawebpro.com instead of using the issue tracker.
-
-## Credits
-
-- [Daniel Alvidrez](https://github.com/bayareawebpro)
-- All Contributors
-
-## License
-
-The MIT License (MIT). Please see [License File](LICENSE.md) for more information.

@@ -15,6 +15,8 @@ use Illuminate\Support\Facades\Route;
  */
 Route::get('orderable', fn() => (
 SearchableResource::make(MockUser::query())
+    ->orderBy('id')
+    ->sort('desc')
     ->orderable([
         'name',
         'role',
@@ -114,6 +116,7 @@ SearchableResource::make(MockUser::query())
  */
 Route::get('options', fn() => (
 SearchableResource::make(MockUser::query())
+    ->labeled(request()->filled('formatted'))
     ->queries([
         MockOptionsQuery::class,
     ])
