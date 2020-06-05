@@ -432,11 +432,15 @@ SearchableResource::make(User::query())
 	]);
 ```
 
-Second by instantiating each query using the make method.  This can be useful when you need 
+Second by instantiating each query using the `make` method.  This can be useful when you need 
 more methods and logic to determine usage. 
 
 ```php
-$searchable = SearchableResource::make(User::query());
+
+use App\Queries\RoleQuery;
+
+SearchableResource::make(User::query())
+	->query(RoleQuery::make());
 ```
 
 ---
