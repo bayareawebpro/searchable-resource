@@ -20,7 +20,6 @@ use BayAreaWebPro\SearchableResource\Contracts\ValidatableQuery;
 use BayAreaWebPro\SearchableResource\Contracts\ConditionalQuery;
 use BayAreaWebPro\SearchableResource\Contracts\ProvidesOptions;
 use BayAreaWebPro\SearchableResource\Contracts\FormatsOptions;
-
 use BayAreaWebPro\SearchableResource\Concerns\Resourceful;
 use BayAreaWebPro\SearchableResource\Concerns\Validatable;
 use BayAreaWebPro\SearchableResource\Concerns\Appendable;
@@ -136,6 +135,12 @@ class SearchableBuilder implements Responsable, Arrayable
     protected array $validated = [];
 
     /**
+     * Queries.
+     * @var Collection
+     */
+    protected Collection $queries;
+
+    /**
      * @var Paginator|EloquentCollection
      */
     protected $result;
@@ -147,6 +152,7 @@ class SearchableBuilder implements Responsable, Arrayable
      */
     public function __construct(Request $request, Builder $query)
     {
+        $this->queries = Collection::make();
         $this->request = $request;
         $this->query = $query;
     }
@@ -173,10 +179,7 @@ class SearchableBuilder implements Responsable, Arrayable
         foreach ($queries as $query) {
             if ($query instanceof AbstractQuery) {
                 $this->query($query);
-            } elseif (
-                is_string($query)
-                && class_exists($query)
-                && is_subclass_of($query, AbstractQuery::class)) {
+            } elseif (is_string($query) && is_subclass_of($query, AbstractQuery::class)) {
                 $this->query(app($query));
             }
         }
@@ -190,22 +193,7 @@ class SearchableBuilder implements Responsable, Arrayable
      */
     public function query(AbstractQuery $query)
     {
-        if ($query instanceof ConditionalQuery) {
-            $applies = $query->getApplies();
-            $this->query->when($applies, $query);
-            if($applies && $query instanceof ValidatableQuery){
-                $this->rules($query->getRules());
-            }
-        } else{
-            $this->query->tap($query);
-            if($query instanceof ValidatableQuery){
-                $this->rules($query->getRules());
-            }
-        }
-        if($query instanceof ProvidesOptions){
-            $this->withOptions($query->getOptions());
-        }
-        $this->fields([$query->getField()]);
+        $this->queries->push($query);
         return $this;
     }
 
@@ -215,7 +203,6 @@ class SearchableBuilder implements Responsable, Arrayable
      */
     protected function executePaginatorQuery(): Paginator
     {
-        $this->validated = $this->request->validate($this->compileRules());
         $this->query->orderBy($this->getOrderBy(), $this->getSort());
         return $this->query->paginate($this->getPerPage(), $this->select)->appends($this->validated);
     }
@@ -226,19 +213,8 @@ class SearchableBuilder implements Responsable, Arrayable
      */
     protected function executeQuery(): EloquentCollection
     {
-        $this->validated = $this->request->validate($this->compileRules());
         $this->query->orderBy($this->getOrderBy(), $this->getSort());
         return $this->query->get($this->select);
-    }
-
-    /**
-     * Execute Query and Gather Items.
-     * @return $this
-     */
-    public function execute(): self
-    {
-        $this->result = (isset($this->paginate) ? $this->executePaginatorQuery() : $this->executeQuery());
-        return $this;
     }
 
     /**
@@ -293,47 +269,6 @@ class SearchableBuilder implements Responsable, Arrayable
     }
 
     /**
-     * Get the response representation of the data.
-     * @param Request|null $request
-     * @return JsonResponse
-     */
-    public function toResponse($request = null): Response
-    {
-        $this->request = $request ?: $this->request;
-
-        $this->execute();
-
-        if (isset($this->paginate)) {
-            return $this
-                ->formatPaginatedResource()
-                ->toResponse($this->request);
-        }
-
-        return $this
-            ->formatBaseResource()
-            ->toResponse($this->request);
-    }
-
-    /**
-     * Get the array representation of the data.
-     * @return array
-     */
-    public function toArray()
-    {
-        $this->execute();
-
-        if (isset($this->paginate)) {
-            return array_merge([
-                'data' => $this->appendAppendable($this->result->items()),
-            ], $this->getPaginatedAdditional($this->result), $this->with);
-        }
-
-        return array_merge([
-            'data' => $this->appendAppendable($this->result->all()),
-        ], $this->getBaseAdditional(), $this->with);
-    }
-
-    /**
      * Format the paginated resource.
      * @return JsonResource
      */
@@ -377,5 +312,118 @@ class SearchableBuilder implements Responsable, Arrayable
             'query'   => $this->formatQuery(),
             'options' => $this->getOptions(),
         ], $this->with);
+    }
+
+    /**
+     * Execute Query and Gather Items.
+     * @throws \Illuminate\Validation\ValidationException
+     * @return $this
+     */
+    public function execute(): self
+    {
+        $this->compileQueryRules();
+        $this->validateRequest();
+        $this->compileQueryStatements();
+        $this->result = (isset($this->paginate) ? $this->executePaginatorQuery() : $this->executeQuery());
+        $this->compileQueryOptions();
+        return $this;
+    }
+
+    /**
+     * Get the response representation of the data.
+     * @param Request|null $request
+     * @throws \Illuminate\Validation\ValidationException
+     * @return JsonResponse
+     */
+    public function toResponse($request = null): Response
+    {
+        $this->request = $request ?: $this->request;
+
+        $this->execute();
+
+        if (isset($this->paginate)) {
+            return $this
+                ->formatPaginatedResource()
+                ->toResponse($this->request);
+        }
+
+        return $this
+            ->formatBaseResource()
+            ->toResponse($this->request);
+    }
+
+    /**
+     * Get the array representation of the data.
+     * @throws \Illuminate\Validation\ValidationException
+     * @return array
+     */
+    public function toArray()
+    {
+        $this->execute();
+
+        if (isset($this->paginate)) {
+            return array_merge([
+                'data' => $this->appendAppendable($this->result->items()),
+            ], $this->getPaginatedAdditional($this->result), $this->with);
+        }
+
+        return array_merge([
+            'data' => $this->appendAppendable($this->result->all()),
+        ], $this->getBaseAdditional(), $this->with);
+    }
+
+    /**
+     * Compile & Apply Query Rules
+     */
+    protected function compileQueryRules(): void
+    {
+        $this->queries->each(function (AbstractQuery $query) {
+            if ($query instanceof ValidatableQuery) {
+                if ($query instanceof ConditionalQuery) {
+                    if ($query->getApplies()) {
+                        $this->rules($query->getRules());
+                    }
+                } else {
+                    $this->rules($query->getRules());
+                }
+            }
+        });
+    }
+
+    /**
+     * Compile & Apply Query Statements
+     */
+    protected function compileQueryStatements(): void
+    {
+        $this->queries->each(function (AbstractQuery $query) {
+            if ($query instanceof ConditionalQuery) {
+                if ($query->getApplies()) {
+                    $this->query->tap($query);
+                    $this->fields([$query->getField()]);
+                }
+            } else {
+                $this->query->tap($query);
+                $this->fields([$query->getField()]);
+            }
+        });
+    }
+
+    /**
+     * Compile Query Options
+     */
+    protected function compileQueryOptions(): void
+    {
+        $this->queries->whereInstanceOf(ProvidesOptions::class)->each(function (ProvidesOptions $query) {
+            $this->withOptions($query->getOptions());
+        });
+    }
+
+    /**
+     * Validate the request.
+     * @throws \Illuminate\Validation\ValidationException
+     */
+    protected function validateRequest(): void
+    {
+        $this->validated = $this->request->validate($this->compileRules());
     }
 }

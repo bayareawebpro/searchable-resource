@@ -123,4 +123,5 @@ class QueryTest extends TestCase
                 'query' => ['search' => 'guest'],
             ], true);
     }
+
 }

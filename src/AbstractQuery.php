@@ -85,4 +85,5 @@ abstract class AbstractQuery implements InvokableQuery
     {
         return $this->attribute;
     }
+
 }
