@@ -8,7 +8,7 @@ use BayAreaWebPro\SearchableResource\Contracts\ConditionalQuery;
 use BayAreaWebPro\SearchableResource\Contracts\ValidatableQuery;
 use BayAreaWebPro\SearchableResource\Contracts\ProvidesOptions;
 
-class DummyClass extends AbstractQuery
+class DummyClass extends AbstractQuery implements ConditionalQuery, ValidatableQuery, ProvidesOptions
 {
     /**
      * Request Field
@@ -18,7 +18,7 @@ class DummyClass extends AbstractQuery
     /**
      * Database Attribute / Column
      */
-    protected string $attribute = '';
+    protected string $attribute = 'name';
 
     /**
      * InvokableQuery
@@ -33,7 +33,7 @@ class DummyClass extends AbstractQuery
      * ConditionalQuery
      * use contract to enable
      */
-    public function applies(): bool
+    public function getApplies(): bool
     {
         return $this->request->filled($this->getField());
     }
@@ -42,7 +42,7 @@ class DummyClass extends AbstractQuery
      * ValidatableQuery
      * use contract to enable
      */
-    public function rules(): array
+    public function getRules(): array
     {
         return [
             //$this->getField() => 'sometimes|nullable|string',
@@ -53,10 +53,26 @@ class DummyClass extends AbstractQuery
      * ProvidesOptions
      * use contract to enable
      */
-    public function options(): array
+    public function getOptions(): array
     {
+//        return [
+//            $this->getField() => [
+//                'value1',
+//                'value2',
+//            ],
+//        ];
+
         return [
-            //'key' => 'value',
+            $this->getField() => [
+                [
+                    'label' => 'Value 1',
+                    'value' => 'value1',
+                ],
+                [
+                    'label' => 'Value 2',
+                    'value' => 'value2',
+                ],
+            ],
         ];
     }
 }
