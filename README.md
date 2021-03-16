@@ -313,8 +313,7 @@ value which can be used to enable when the request has a session.
 You can override the default formatter by specifying a formatter instance.
 
 ```php
-SearchableResource::make(User::query())
-    ->useFormatter(new OptionsFormatter);
+SearchableResource::make(User::query())->useFormatter(new OptionsFormatter);
 ```
 
 ```php
@@ -322,11 +321,11 @@ SearchableResource::make(User::query())
 
 namespace App\Http\Resources;
 
-use Illuminate\Support\Str;
+use BayAreaWebPro\SearchableResource\OptionsFormatter as Formatter;
 use Illuminate\Support\Collection;
-use BayAreaWebPro\SearchableResource\Contracts\FormatsOptions;
+use Illuminate\Support\Str;
 
-class OptionsFormatter implements FormatsOptions {
+class OptionsFormatter extends Formatter {
 
     /**
      * @param string $key
