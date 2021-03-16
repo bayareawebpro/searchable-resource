@@ -288,26 +288,48 @@ class ProvidesOptionsQuery extends AbstractQuery implements ProvidesOptions
 
 ### Options Formatting
 
-Request options will be appended to the output for convenience / UI State.  Options can 
-be auto-formatted with labels for usage with forms and filters by calling 
+Options can be formatted with labels for usage with forms and filters by calling 
 the `labeled()` method on the builder.  The labeled method accept a boolean 
 value which can be used to enable when the request has a session.
 
 > You can return preformatted options (label / value array) from queries 
 > or use the formatter to generate labeled options.
 
+### API Options Schema
+
+Options for API requests are typically not-formatted for speed.
+
 ```
-"options": {
-    "role": [
-        {
-            "value": "admin" 
-            "label": "Admin"
-        },
-        {
-            "value": "editor" 
-            "label": "Editor"
-        },
-    ]
+public function getOptions(): array
+{
+    return [
+        $this->getField() => [
+            'admin',
+            'customer'
+        ]
+    ];
+}
+```
+
+### Blade Options Schema
+
+Options for Blade requests can be formatted for usability.
+
+```
+public function getOptions(): array
+{
+    return [
+        $this->getField() => [
+            [
+                'label' => 'Admin',
+                'value' => 'admin'
+            ],
+            [
+                'label' => 'Customer',
+                'value' => 'customer'
+            ]
+        ]
+    ];
 }
 ```
 
