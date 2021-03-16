@@ -12,6 +12,16 @@ class MockOptionsQuery extends AbstractQuery implements ProvidesOptions
     public function getOptions(): array
     {
         return [
+            'untouched' => [
+                [
+                    'label' => 'Value 1',
+                    'value' => 'value1',
+                ],
+                [
+                    'label' => 'Value 2',
+                    'value' => 'value2',
+                ],
+            ],
             $this->getField() => [
                 'my_option'
             ],

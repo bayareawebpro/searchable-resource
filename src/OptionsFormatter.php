@@ -25,10 +25,16 @@ class OptionsFormatter implements FormatsOptions
      */
     protected function baseOptions(string $key, Collection $options): Collection
     {
+        if(is_array($options->first())){
+            return $options;
+        }
+        if (in_array($key, ['sort', 'order_by']) || is_string($options->first())) {
+            return $this->titleCase($options);
+        }
         if ($key === 'per_page') {
             return $this->append($options, "/ Page");
         }
-        return $this->titleCase($options);
+        return $this->literal($options);
     }
 
     /**

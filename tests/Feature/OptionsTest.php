@@ -21,6 +21,16 @@ class OptionsTest extends TestCase
         $this->json('get', route('options', ['formatted' => true]))
             ->assertJson([
                 'options' => [
+                    'untouched' => [
+                        [
+                            'label' => 'Value 1',
+                            'value' => 'value1',
+                        ],
+                        [
+                            'label' => 'Value 2',
+                            'value' => 'value2',
+                        ],
+                    ],
                     'option' => [
                         [
                             'label' => 'My Option',

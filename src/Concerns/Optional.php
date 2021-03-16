@@ -3,6 +3,7 @@
 namespace BayAreaWebPro\SearchableResource\Concerns;
 
 use BayAreaWebPro\SearchableResource\Contracts\FormatsOptions;
+use BayAreaWebPro\SearchableResource\OptionsFormatter;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
@@ -41,9 +42,6 @@ trait Optional
         if(isset($this->formatter)){
             return app()->call($this->formatter, compact('key','options'));
         }
-        return $options->unique()->map(fn($entry) => [
-            'label' => Str::title(str_replace('_', ' ', (string) $entry)),
-            'value' => $entry,
-        ]);
+        return app()->call(new OptionsFormatter, compact('key','options'));
     }
 }
