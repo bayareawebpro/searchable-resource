@@ -315,6 +315,18 @@ class SearchableBuilder implements Responsable, Arrayable
     }
 
     /**
+     * Get Search Parameter
+     * @return string|null
+     */
+    public function getSearch(): ?string
+    {
+        if(is_string($value = $this->request->query('search'))){
+            return $value;
+        }
+        return null;
+    }
+
+    /**
      * Execute Query and Gather Items.
      * @throws \Illuminate\Validation\ValidationException
      * @return $this
