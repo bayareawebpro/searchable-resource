@@ -130,6 +130,11 @@ class SearchableBuilder implements Responsable, Arrayable
     protected array $rules = [];
 
     /**
+     * @var Paginator|EloquentCollection
+     */
+    protected $result;
+
+    /**
      * SearchableResource constructor.
      * @param Request $request
      * @param Builder $query
@@ -221,6 +226,34 @@ class SearchableBuilder implements Responsable, Arrayable
     }
 
     /**
+     * Execute Query and Gather Items.
+     * @return $this
+     */
+    public function execute()
+    {
+        $this->result = $this->paginate ? $this->executePaginatorQuery() : $this->executeQuery();
+        return $this;
+    }
+
+    /**
+     * Get the result collection or paginator.
+     * @return Paginator|EloquentCollection
+     */
+    public function items()
+    {
+        return $this->result;
+    }
+
+    /**
+     * Get the options collection.
+     * @return Collection
+     */
+    public function options()
+    {
+        return $this->getOptions();
+    }
+
+    /**
      * Get the options for queries.
      * @return Collection
      */
@@ -279,10 +312,10 @@ class SearchableBuilder implements Responsable, Arrayable
     public function toArray()
     {
         if (isset($this->paginate)) {
-            $paginator = $this->executePaginatorQuery();
+            $this->execute();
             return array_merge([
-                'data' => $this->appendAppendable($paginator->items()),
-            ], $this->getPaginatedAdditional($paginator), $this->with);
+                'data' => $this->appendAppendable($this->result->items()),
+            ], $this->getPaginatedAdditional($this->result), $this->with);
         }
 
         return array_merge([
@@ -296,9 +329,9 @@ class SearchableBuilder implements Responsable, Arrayable
      */
     protected function formatPaginatedResource(): JsonResource
     {
-        $paginator = $this->executePaginatorQuery();
-        $items = $this->appendAppendable($paginator->items());
-        return $this->resource::collection($items)->additional($this->getPaginatedAdditional($paginator));
+        $this->execute();
+        $items = $this->appendAppendable($this->result->items());
+        return $this->resource::collection($items)->additional($this->getPaginatedAdditional($this->result));
     }
 
     /**

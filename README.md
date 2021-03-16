@@ -103,7 +103,7 @@ SearchableResource::make(User::query())
 
 ---
 
-### API / JSON Resources
+### JSON Resources
 
 SearchableResources are generic JsonResources by default.  You can easily specify 
 which resource class should be used to map your models when building the response.
@@ -111,8 +111,7 @@ which resource class should be used to map your models when building the respons
 > Must extend `JsonResource`.
 
 ```php
-SearchableResource::make(User::query())
-    ->resource(UserResource::class);
+SearchableResource::make(User::query())->resource(UserResource::class);
 ```
 
 ---
@@ -314,8 +313,7 @@ value which can be used to enable when the request has a session.
 You can override the default formatter by specifying a formatter instance.
 
 ```php
-SearchableResource::make(User::query())
-    ->useFormatter(new OptionsFormatter);
+SearchableResource::make(User::query())->useFormatter(new OptionsFormatter);
 ```
 
 ```php
@@ -323,24 +321,26 @@ SearchableResource::make(User::query())
 
 namespace App\Http\Resources;
 
-use Illuminate\Support\Str;
+use BayAreaWebPro\SearchableResource\OptionsFormatter as Formatter;
 use Illuminate\Support\Collection;
-use BayAreaWebPro\SearchableResource\Contracts\FormatsOptions;
+use Illuminate\Support\Str;
 
-class OptionsFormatter implements FormatsOptions {
+class OptionsFormatter extends Formatter {
 
+    /**
+     * @param string $key
+     * @param Collection $options
+     * @return Collection
+     */
     public function __invoke(string $key, Collection $options): Collection
     {
-        if($key === 'per_page'){
-            return $this->append($options, "/ Page");
-        }
-        if($key === 'abilities'){
+       if($key === 'abilities'){
             return $this->nullable($this->literal($options));
         }
         if($key === 'role'){
             return $this->nullable($this->titleCase($options));
         }
-        return $this->titleCase($options);
+        return $this->baseOptions($key, $options);
     }
 
     /**
@@ -578,6 +578,35 @@ making pagination buttons easy to disable via props (Vue | React).
 ```
 
 
+---
+
+### Blade / View Example
+
+Execute the query and return a view with the items and options.
+
+```php
+ public function index()
+{
+    $resource = SearchableResource::make(User::query())
+        ->query(Users::make())
+        ->orderable(['name', 'email'])
+        ->orderBy('name')
+        ->sort('desc')
+        ->paginate(5)
+        ->execute()
+    ;
+    return view('users.index', [
+        'items' =>$resource->items(),
+        'options' =>$resource->options(),
+    ]);
+}
+```
+
+```html
+<x-select name="sort"       value="{{ request('sort') }}"       :options="$options->get('sort')"/>
+<x-select name="order_by"   value="{{ request('order_by') }}"   :options="$options->get('order_by')"/>
+<x-select name="per_page"   value="{{ request('per_page') }}"   :options="$options->get('per_page')"/>
+```
 
 ### Vue Components Example
 
