@@ -6,11 +6,26 @@ use BayAreaWebPro\SearchableResource\Contracts\FormatsOptions;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
-class OptionsFormatter implements FormatsOptions {
-
+class OptionsFormatter implements FormatsOptions
+{
+    /**
+     * @param string $key
+     * @param Collection $options
+     * @return Collection
+     */
     public function __invoke(string $key, Collection $options): Collection
     {
-        if($key === 'per_page'){
+        return $this->baseOptions($key, $options);
+    }
+
+    /**
+     * @param string $key
+     * @param Collection $options
+     * @return Collection
+     */
+    protected function baseOptions(string $key, Collection $options): Collection
+    {
+        if ($key === 'per_page') {
             return $this->append($options, "/ Page");
         }
         return $this->titleCase($options);
@@ -23,7 +38,7 @@ class OptionsFormatter implements FormatsOptions {
      */
     protected function append(Collection $options, string $append): Collection
     {
-        return $options->map(fn($value, $key)=>[
+        return $options->map(fn($value, $key) => [
             'label' => "$value $append",
             'value' => $value,
         ]);
