@@ -33,7 +33,7 @@ class OptionsTest extends TestCase
                     ],
                     'option' => [
                         [
-                            'label' => 'My Option',
+                            'label' => 'my_option',
                             'value' => 'my_option',
                         ],
                     ],

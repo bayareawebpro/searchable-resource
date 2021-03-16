@@ -28,7 +28,7 @@ class OptionsFormatter implements FormatsOptions
         if(is_array($options->first())){
             return $options;
         }
-        if (in_array($key, ['sort', 'order_by']) || is_string($options->first())) {
+        if (in_array($key, ['sort', 'order_by'])) {
             return $this->titleCase($options);
         }
         if ($key === 'per_page') {

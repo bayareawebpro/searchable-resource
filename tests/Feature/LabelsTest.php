@@ -21,7 +21,7 @@ class LabelsTest extends TestCase
                     ["value" => 'asc', 'label' => "Asc"]
                 ],
                 'option' => [
-                    ["value" => 'my_option', 'label' => "My Option"]
+                    ["value" => 'my_option', 'label' => "my_option"]
                 ],
             ],
         ], true);
