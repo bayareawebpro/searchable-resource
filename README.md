@@ -288,10 +288,13 @@ class ProvidesOptionsQuery extends AbstractQuery implements ProvidesOptions
 
 ### Options Formatting
 
-Request options are appended to the output for convenience / UI State.  Options can 
+Request options will be appended to the output for convenience / UI State.  Options can 
 be auto-formatted with labels for usage with forms and filters by calling 
 the `labeled()` method on the builder.  The labeled method accept a boolean 
 value which can be used to enable when the request has a session.
+
+> You can return preformatted options (label / value array) from queries 
+> or use the formatter to generate labeled options.
 
 ```
 "options": {
@@ -334,7 +337,7 @@ class OptionsFormatter extends Formatter {
      */
     public function __invoke(string $key, Collection $options): Collection
     {
-       if($key === 'abilities'){
+        if($key === 'abilities'){
             return $this->nullable($this->literal($options));
         }
         if($key === 'role'){
