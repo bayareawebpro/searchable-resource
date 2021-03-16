@@ -20,7 +20,6 @@ use BayAreaWebPro\SearchableResource\Contracts\ValidatableQuery;
 use BayAreaWebPro\SearchableResource\Contracts\ConditionalQuery;
 use BayAreaWebPro\SearchableResource\Contracts\ProvidesOptions;
 use BayAreaWebPro\SearchableResource\Contracts\FormatsOptions;
-
 use BayAreaWebPro\SearchableResource\Concerns\Resourceful;
 use BayAreaWebPro\SearchableResource\Concerns\Validatable;
 use BayAreaWebPro\SearchableResource\Concerns\Appendable;
@@ -317,6 +316,7 @@ class SearchableBuilder implements Responsable, Arrayable
 
     /**
      * Execute Query and Gather Items.
+     * @throws \Illuminate\Validation\ValidationException
      * @return $this
      */
     public function execute(): self
@@ -332,6 +332,7 @@ class SearchableBuilder implements Responsable, Arrayable
     /**
      * Get the response representation of the data.
      * @param Request|null $request
+     * @throws \Illuminate\Validation\ValidationException
      * @return JsonResponse
      */
     public function toResponse($request = null): Response
@@ -353,6 +354,7 @@ class SearchableBuilder implements Responsable, Arrayable
 
     /**
      * Get the array representation of the data.
+     * @throws \Illuminate\Validation\ValidationException
      * @return array
      */
     public function toArray()
@@ -370,6 +372,9 @@ class SearchableBuilder implements Responsable, Arrayable
         ], $this->getBaseAdditional(), $this->with);
     }
 
+    /**
+     * Compile & Apply Query Rules
+     */
     protected function compileQueryRules(): void
     {
         $this->queries->each(function (AbstractQuery $query) {
@@ -385,6 +390,9 @@ class SearchableBuilder implements Responsable, Arrayable
         });
     }
 
+    /**
+     * Compile & Apply Query Statements
+     */
     protected function compileQueryStatements(): void
     {
         $this->queries->each(function (AbstractQuery $query) {
@@ -400,15 +408,20 @@ class SearchableBuilder implements Responsable, Arrayable
         });
     }
 
+    /**
+     * Compile Query Options
+     */
     protected function compileQueryOptions(): void
     {
-        $this->queries->each(function (AbstractQuery $query) {
-            if ($query instanceof ProvidesOptions) {
-                $this->withOptions($query->getOptions());
-            }
+        $this->queries->whereInstanceOf(ProvidesOptions::class)->each(function (ProvidesOptions $query) {
+            $this->withOptions($query->getOptions());
         });
     }
 
+    /**
+     * Validate the request.
+     * @throws \Illuminate\Validation\ValidationException
+     */
     protected function validateRequest(): void
     {
         $this->validated = $this->request->validate($this->compileRules());
