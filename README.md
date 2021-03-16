@@ -103,7 +103,7 @@ SearchableResource::make(User::query())
 
 ---
 
-### API / JSON Resources
+### JSON Resources
 
 SearchableResources are generic JsonResources by default.  You can easily specify 
 which resource class should be used to map your models when building the response.
@@ -111,8 +111,7 @@ which resource class should be used to map your models when building the respons
 > Must extend `JsonResource`.
 
 ```php
-SearchableResource::make(User::query())
-    ->resource(UserResource::class);
+SearchableResource::make(User::query())->resource(UserResource::class);
 ```
 
 ---
@@ -574,6 +573,35 @@ making pagination buttons easy to disable via props (Vue | React).
 ```
 
 
+---
+
+### Blade / View Example
+
+Execute the query and return a view with the items and options.
+
+```php
+ public function index()
+{
+    $resource = SearchableResource::make(User::query())
+        ->query(Users::make())
+        ->orderable(['name', 'email'])
+        ->orderBy('name')
+        ->sort('desc')
+        ->paginate(5)
+        ->execute()
+    ;
+    return view('users.index', [
+        'items' =>$resource->items(),
+        'options' =>$resource->options(),
+    ]);
+}
+```
+
+```html
+<x-select name="sort"       value="{{ request('sort') }}"       :options="$options->get('sort')"/>
+<x-select name="order_by"   value="{{ request('order_by') }}"   :options="$options->get('order_by')"/>
+<x-select name="per_page"   value="{{ request('per_page') }}"   :options="$options->get('per_page')"/>
+```
 
 ### Vue Components Example
 
