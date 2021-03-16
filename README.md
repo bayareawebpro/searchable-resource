@@ -328,18 +328,20 @@ use BayAreaWebPro\SearchableResource\Contracts\FormatsOptions;
 
 class OptionsFormatter implements FormatsOptions {
 
+    /**
+     * @param string $key
+     * @param Collection $options
+     * @return Collection
+     */
     public function __invoke(string $key, Collection $options): Collection
     {
-        if($key === 'per_page'){
-            return $this->append($options, "/ Page");
-        }
-        if($key === 'abilities'){
+       if($key === 'abilities'){
             return $this->nullable($this->literal($options));
         }
         if($key === 'role'){
             return $this->nullable($this->titleCase($options));
         }
-        return $this->titleCase($options);
+        return $this->baseOptions($key, $options);
     }
 
     /**
