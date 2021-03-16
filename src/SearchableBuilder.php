@@ -130,6 +130,12 @@ class SearchableBuilder implements Responsable, Arrayable
     protected array $rules = [];
 
     /**
+     * Validation Data.
+     * @var array
+     */
+    protected array $validated = [];
+
+    /**
      * @var Paginator|EloquentCollection
      */
     protected $result;
@@ -209,9 +215,9 @@ class SearchableBuilder implements Responsable, Arrayable
      */
     protected function executePaginatorQuery(): Paginator
     {
-        $this->request->validate($this->compileRules());
+        $this->validated = $this->request->validate($this->compileRules());
         $this->query->orderBy($this->getOrderBy(), $this->getSort());
-        return $this->query->paginate($this->getPerPage(), $this->select);
+        return $this->query->paginate($this->getPerPage(), $this->select)->appends($this->validated);
     }
 
     /**
@@ -220,7 +226,7 @@ class SearchableBuilder implements Responsable, Arrayable
      */
     protected function executeQuery(): EloquentCollection
     {
-        $this->request->validate($this->compileRules());
+        $this->validated = $this->request->validate($this->compileRules());
         $this->query->orderBy($this->getOrderBy(), $this->getSort());
         return $this->query->get($this->select);
     }
@@ -229,9 +235,9 @@ class SearchableBuilder implements Responsable, Arrayable
      * Execute Query and Gather Items.
      * @return $this
      */
-    public function execute()
+    public function execute(): self
     {
-        $this->result = $this->paginate ? $this->executePaginatorQuery() : $this->executeQuery();
+        $this->result = (isset($this->paginate) ? $this->executePaginatorQuery() : $this->executeQuery());
         return $this;
     }
 
@@ -248,7 +254,7 @@ class SearchableBuilder implements Responsable, Arrayable
      * Get the options collection.
      * @return Collection
      */
-    public function options()
+    public function options(): Collection
     {
         return $this->getOptions();
     }
@@ -259,30 +265,31 @@ class SearchableBuilder implements Responsable, Arrayable
      */
     protected function getOptions(): Collection
     {
-        /**
-         * Formatted label / value assoc. arrays
-         */
         if ($this->labeled) {
 
             $options = Collection::make($this->options)
                 ->map(fn($options, $key) => $this->formatOptions($key, Collection::make($options))->unique()->all())
                 ->all();
 
-            return Collection::make(array_merge([
+            $options = Collection::make(array_merge([
                 'order_by' => $this->formatOptions('order_by', $this->getOrderableOptions())->all(),
                 'sort'     => $this->formatOptions('sort', $this->getSortOptions())->all(),
                 'per_page' => $this->formatOptions('per_page', $this->getPerPageOptions())->all(),
             ], $options));
+        }else{
+
+            $options = Collection::make(array_merge([
+                'order_by' => $this->getOrderableOptions()->all(),
+                'sort'     => $this->getSortOptions()->all(),
+                'per_page' => $this->getPerPageOptions()->all(),
+            ], $this->options));
         }
 
-        /**
-         * Raw values arrays
-         */
-        return Collection::make(array_merge([
-            'order_by' => $this->getOrderableOptions()->all(),
-            'sort'     => $this->getSortOptions()->all(),
-            'per_page' => $this->getPerPageOptions()->all(),
-        ], $this->options));
+
+        if(!isset($this->paginate)){
+            return $options->forget('per_page');
+        }
+        return $options;
     }
 
     /**
@@ -293,6 +300,8 @@ class SearchableBuilder implements Responsable, Arrayable
     public function toResponse($request = null): Response
     {
         $this->request = $request ?: $this->request;
+
+        $this->execute();
 
         if (isset($this->paginate)) {
             return $this
@@ -311,15 +320,16 @@ class SearchableBuilder implements Responsable, Arrayable
      */
     public function toArray()
     {
+        $this->execute();
+
         if (isset($this->paginate)) {
-            $this->execute();
             return array_merge([
                 'data' => $this->appendAppendable($this->result->items()),
             ], $this->getPaginatedAdditional($this->result), $this->with);
         }
 
         return array_merge([
-            'data' => $this->appendAppendable($this->executeQuery()->all()),
+            'data' => $this->appendAppendable($this->result->all()),
         ], $this->getBaseAdditional(), $this->with);
     }
 
@@ -329,7 +339,6 @@ class SearchableBuilder implements Responsable, Arrayable
      */
     protected function formatPaginatedResource(): JsonResource
     {
-        $this->execute();
         $items = $this->appendAppendable($this->result->items());
         return $this->resource::collection($items)->additional($this->getPaginatedAdditional($this->result));
     }
@@ -340,7 +349,7 @@ class SearchableBuilder implements Responsable, Arrayable
      */
     protected function formatBaseResource(): JsonResource
     {
-        $items = $this->appendAppendable($this->executeQuery()->all());
+        $items = $this->appendAppendable($this->result->all());
         return $this->resource::collection($items)->additional($this->getBaseAdditional());
     }
 
@@ -366,7 +375,7 @@ class SearchableBuilder implements Responsable, Arrayable
     {
         return array_merge([
             'query'   => $this->formatQuery(),
-            'options' => $this->getOptions()->forget('per_page'),
+            'options' => $this->getOptions(),
         ], $this->with);
     }
 }
