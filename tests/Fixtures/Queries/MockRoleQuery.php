@@ -14,7 +14,7 @@ class MockRoleQuery extends AbstractQuery implements ConditionalQuery, Validatab
 
     public function __invoke(Builder $builder): void
     {
-        $builder->where($this->attribute, $this->getValue());
+        $builder->where($this->attribute, $this->getValue($this->field));
     }
 
     public function getRules(): array

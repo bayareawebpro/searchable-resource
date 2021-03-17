@@ -14,7 +14,7 @@ class MockUserQuery extends AbstractQuery implements ConditionalQuery, Validatab
 
     public function __invoke(Builder $builder): void
     {
-        $value = $this->getValue();
+        $value = $this->getValue($this->field);
         $builder->where(fn(Builder $builder) => $builder
             ->where('name', 'like', "%$value%")
             ->orWhere('email', 'like', "%$value%")

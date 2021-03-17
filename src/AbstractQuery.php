@@ -2,12 +2,12 @@
 
 namespace BayAreaWebPro\SearchableResource;
 
-use Illuminate\Http\Request;
-use Illuminate\Database\Eloquent\Builder;
-use BayAreaWebPro\SearchableResource\Contracts\InvokableQuery;
-use Illuminate\Support\Collection;
 use ReflectionClass;
 use ReflectionProperty;
+use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
+use Illuminate\Database\Eloquent\Builder;
+use BayAreaWebPro\SearchableResource\Contracts\InvokableQuery;
 
 abstract class AbstractQuery implements InvokableQuery
 {
@@ -49,7 +49,14 @@ abstract class AbstractQuery implements InvokableQuery
      */
     public function __invoke(Builder $builder): void
     {
-        $builder->where($this->attribute, $this->getValue());
+        $fields = Collection::make($this->getFields());
+
+        if($fields->count() > 1){
+            $builder->whereIn($this->attribute, $fields->map(fn($field)=>$this->getValue($field)));
+
+        }elseif($fields->count()){
+            $builder->where($this->attribute, $this->getValue($fields->first()));
+        }
     }
 
     /**
@@ -58,17 +65,18 @@ abstract class AbstractQuery implements InvokableQuery
      */
     public function getApplies(): bool
     {
-        return $this->request->filled($this->field);
+        return $this->request->anyFilled($this->getFields());
     }
 
     /**
      * Get the field value.
+     * @param string $key
      * @param null $fallback
      * @return mixed
      */
-    public function getValue($fallback = null)
+    public function getValue(string $key, $fallback = null)
     {
-        return $this->request->get($this->field, $fallback);
+        return $this->request->get($key, $fallback);
     }
 
     /**
