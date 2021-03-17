@@ -191,7 +191,7 @@ class SearchableBuilder implements Responsable, Arrayable
      * @param AbstractQuery $query
      * @return $this
      */
-    public function query(AbstractQuery $query)
+    public function query(AbstractQuery $query): self
     {
         $this->queries->push($query);
         return $this;
@@ -218,28 +218,10 @@ class SearchableBuilder implements Responsable, Arrayable
     }
 
     /**
-     * Get the result collection or paginator.
-     * @return Paginator|EloquentCollection
-     */
-    public function items()
-    {
-        return $this->result;
-    }
-
-    /**
-     * Get the options collection.
-     * @return Collection
-     */
-    public function options(): Collection
-    {
-        return $this->getOptions();
-    }
-
-    /**
      * Get the options for queries.
      * @return Collection
      */
-    protected function getOptions(): Collection
+    protected function buildOptions(): Collection
     {
         if ($this->labeled) {
 
@@ -298,7 +280,7 @@ class SearchableBuilder implements Responsable, Arrayable
         return array_merge([
             'pagination' => $this->formatPaginator($paginator),
             'query'      => $this->formatQuery($paginator),
-            'options'    => $this->getOptions(),
+            'options'    => $this->buildOptions(),
         ], $this->with);
     }
 
@@ -310,8 +292,35 @@ class SearchableBuilder implements Responsable, Arrayable
     {
         return array_merge([
             'query'   => $this->formatQuery(),
-            'options' => $this->getOptions(),
+            'options' => $this->buildOptions(),
         ], $this->with);
+    }
+
+    /**
+     * Get the result collection or paginator.
+     * @return Paginator|EloquentCollection
+     */
+    public function getItems()
+    {
+        return $this->result;
+    }
+
+    /**
+     * Get the options collection.
+     * @return Collection
+     */
+    public function getOptions(): Collection
+    {
+        return $this->buildOptions();
+    }
+
+    /**
+     * Get the options collection.
+     * @return int
+     */
+    public function getPage(): int
+    {
+        return data_get($this->validated, 'page', 1);
     }
 
     /**
@@ -320,10 +329,7 @@ class SearchableBuilder implements Responsable, Arrayable
      */
     public function getSearch(): ?string
     {
-        if(is_string($value = $this->request->query('search'))){
-            return $value;
-        }
-        return null;
+        return data_get($this->validated, 'search');
     }
 
     /**
