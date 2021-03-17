@@ -86,4 +86,26 @@ trait Paginated{
 
         return $params;
     }
+
+    /**
+     * Get Additional Data for Paginated Queries
+     * @param Paginator $paginator
+     * @return array
+     */
+    protected function getPaginatedAdditional(Paginator $paginator): array
+    {
+        return array_merge([
+            'pagination' => $this->formatPaginator($paginator),
+            'query'      => $this->formatQuery($paginator),
+            'options'    => $this->buildOptions(),
+        ], $this->with);
+    }
+
+    /**
+     * Should the response be paginated.
+     */
+    protected function shouldPaginate(): bool
+    {
+        return isset($this->paginate);
+    }
 }
