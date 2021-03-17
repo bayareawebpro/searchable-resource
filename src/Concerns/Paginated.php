@@ -26,7 +26,7 @@ trait Paginated{
      */
     public function getPerPage(): int
     {
-        return (int) data_get($this->validated, 'per_page',$this->paginate);
+        return (int)$this->getParameter('per_page',$this->paginate);
     }
 
     /**

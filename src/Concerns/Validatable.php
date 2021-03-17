@@ -47,4 +47,15 @@ trait Validatable{
 
         $this->validated = $validator->validated();
     }
+
+    /**
+     * Get Validated Parameter
+     * @param string $parameter
+     * @param mixed $fallback
+     * @return array|mixed
+     */
+    public function getParameter(string $parameter, $fallback = null)
+    {
+        return data_get($this->validated, $parameter,$fallback);
+    }
 }

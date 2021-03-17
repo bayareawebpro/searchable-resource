@@ -24,7 +24,7 @@ trait Sortable{
      */
     public function getSort(): string
     {
-        return data_get($this->validated, 'sort',$this->sort);
+        return $this->getParameter('sort',$this->sort);
     }
 
 
