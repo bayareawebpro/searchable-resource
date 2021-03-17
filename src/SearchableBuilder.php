@@ -2,36 +2,43 @@
 
 namespace BayAreaWebPro\SearchableResource;
 
-use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Collection as EloquentCollection;
-
-use Illuminate\Support\Arr;
-use Illuminate\Support\Collection;
-use Illuminate\Support\Traits\Macroable;
-use Illuminate\Contracts\Support\Arrayable;
-use Illuminate\Http\Resources\Json\JsonResource;
 use Symfony\Component\HttpFoundation\Response;
-
-use Illuminate\Contracts\Support\Responsable;
-use Illuminate\Contracts\Pagination\Paginator;
-
-use BayAreaWebPro\SearchableResource\Contracts\ValidatableQuery;
-use BayAreaWebPro\SearchableResource\Contracts\ConditionalQuery;
-use BayAreaWebPro\SearchableResource\Contracts\ProvidesOptions;
-use BayAreaWebPro\SearchableResource\Contracts\FormatsOptions;
-use BayAreaWebPro\SearchableResource\Concerns\Resourceful;
-use BayAreaWebPro\SearchableResource\Concerns\Validatable;
-use BayAreaWebPro\SearchableResource\Concerns\Appendable;
-use BayAreaWebPro\SearchableResource\Concerns\Selectable;
-use BayAreaWebPro\SearchableResource\Concerns\Orderable;
-use BayAreaWebPro\SearchableResource\Concerns\Paginated;
-use BayAreaWebPro\SearchableResource\Concerns\Sortable;
-use BayAreaWebPro\SearchableResource\Concerns\Optional;
-use BayAreaWebPro\SearchableResource\Concerns\Labeled;
-use BayAreaWebPro\SearchableResource\Concerns\Withable;
-use BayAreaWebPro\SearchableResource\Concerns\Whenable;
+use Illuminate\Http\{
+    Request,
+    JsonResponse,
+    Resources\Json\JsonResource
+};
+use Illuminate\Database\Eloquent\{
+    Builder,
+    Collection as EloquentCollection
+};
+use Illuminate\Support\{
+    Collection,
+    Traits\Macroable
+};
+use Illuminate\Contracts\{
+    Support\Arrayable,
+    Support\Responsable,
+    Pagination\Paginator
+};
+use BayAreaWebPro\SearchableResource\Contracts\{
+    ValidatableQuery,
+    ConditionalQuery,
+    ProvidesOptions,
+    FormatsOptions
+};
+use BayAreaWebPro\SearchableResource\Concerns\{
+    Resourceful,
+    Validatable,
+    Appendable,
+    Selectable,
+    Orderable,
+    Paginated,
+    Sortable,
+    Optional,
+    Labeled,
+    Withable,
+    Whenable};
 
 class SearchableBuilder implements Responsable, Arrayable
 {
@@ -200,7 +207,6 @@ class SearchableBuilder implements Responsable, Arrayable
 
     /**
      * Execute queries and get the paginator instance.
-     * @return Paginator
      */
     protected function executePaginatorQuery(): Paginator
     {
@@ -210,7 +216,6 @@ class SearchableBuilder implements Responsable, Arrayable
 
     /**
      * Execute queries and get the paginator instance.
-     * @return EloquentCollection
      */
     protected function executeQuery(): EloquentCollection
     {
@@ -244,8 +249,7 @@ class SearchableBuilder implements Responsable, Arrayable
             ], $this->options));
         }
 
-
-        if(!isset($this->paginate)){
+        if(!$this->shouldPaginate()){
             return $options->forget('per_page');
         }
         return $options;
@@ -253,22 +257,20 @@ class SearchableBuilder implements Responsable, Arrayable
 
     /**
      * Format the paginated resource.
-     * @return JsonResource
      */
     protected function formatPaginatedResource(): JsonResource
     {
-        $items = $this->appendAppendable($this->result->items());
-        return $this->resource::collection($items)->additional($this->getPaginatedAdditional($this->result));
+        return $this->resource::collection($this->appendAppendable($this->result->items()))
+            ->additional($this->getPaginatedAdditional($this->result));
     }
 
     /**
      * Format the base resource.
-     * @return JsonResource
      */
     protected function formatBaseResource(): JsonResource
     {
-        $items = $this->appendAppendable($this->result->all());
-        return $this->resource::collection($items)->additional($this->getBaseAdditional());
+        return $this->resource::collection($this->appendAppendable($this->result->all()))
+            ->additional($this->getBaseAdditional());
     }
 
     /**
@@ -287,7 +289,6 @@ class SearchableBuilder implements Responsable, Arrayable
 
     /**
      * Get Additional Data for Base Queries
-     * @return array
      */
     protected function getBaseAdditional(): array
     {
@@ -308,7 +309,6 @@ class SearchableBuilder implements Responsable, Arrayable
 
     /**
      * Get the options collection.
-     * @return Collection
      */
     public function getOptions(): Collection
     {
@@ -317,7 +317,6 @@ class SearchableBuilder implements Responsable, Arrayable
 
     /**
      * Get the options collection.
-     * @return int
      */
     public function getPage(): int
     {
@@ -326,7 +325,6 @@ class SearchableBuilder implements Responsable, Arrayable
 
     /**
      * Get Search Parameter
-     * @return string|null
      */
     public function getSearch(): ?string
     {
@@ -343,7 +341,7 @@ class SearchableBuilder implements Responsable, Arrayable
         $this->compileQueryRules();
         $this->validateRequest();
         $this->compileQueryStatements();
-        $this->result = (isset($this->paginate) ? $this->executePaginatorQuery() : $this->executeQuery());
+        $this->result = ($this->shouldPaginate() ? $this->executePaginatorQuery() : $this->executeQuery());
         $this->compileQueryOptions();
         return $this;
     }
@@ -360,7 +358,7 @@ class SearchableBuilder implements Responsable, Arrayable
 
         $this->execute();
 
-        if (isset($this->paginate)) {
+        if ($this->shouldPaginate()) {
             return $this
                 ->formatPaginatedResource()
                 ->toResponse($this->request);
@@ -380,7 +378,7 @@ class SearchableBuilder implements Responsable, Arrayable
     {
         $this->execute();
 
-        if (isset($this->paginate)) {
+        if ($this->shouldPaginate()) {
             return array_merge([
                 'data' => $this->appendAppendable($this->result->items()),
             ], $this->getPaginatedAdditional($this->result), $this->with);
@@ -418,11 +416,11 @@ class SearchableBuilder implements Responsable, Arrayable
             if ($query instanceof ConditionalQuery) {
                 if ($query->getApplies()) {
                     $this->query->tap($query);
-                    $this->fields(Arr::wrap($query->getFields()));
+                    $this->fields($query->getFields());
                 }
             } else {
                 $this->query->tap($query);
-                $this->fields(Arr::wrap($query->getFields()));
+                $this->fields($query->getFields());
             }
         });
     }
@@ -444,5 +442,13 @@ class SearchableBuilder implements Responsable, Arrayable
     protected function validateRequest(): void
     {
         $this->validated = $this->request->validate($this->compileRules());
+    }
+
+    /**
+     * Should the response be paginated.
+     */
+    protected function shouldPaginate(): bool
+    {
+        return isset($this->paginate);
     }
 }

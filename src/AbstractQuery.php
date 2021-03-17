@@ -5,19 +5,22 @@ namespace BayAreaWebPro\SearchableResource;
 use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\Builder;
 use BayAreaWebPro\SearchableResource\Contracts\InvokableQuery;
+use Illuminate\Support\Collection;
+use ReflectionClass;
+use ReflectionProperty;
 
 abstract class AbstractQuery implements InvokableQuery
 {
     protected Request $request;
 
     /**
-     * The request field name.
+     * The public request field name.
      * @var string
      */
-    protected string $field = '';
+    public string $field = '';
 
     /**
-     * The model attribute name.
+     * The protected model attribute name.
      * @var string
      */
     protected string $attribute = '';
@@ -74,9 +77,10 @@ abstract class AbstractQuery implements InvokableQuery
      */
     public function getFields(): array
     {
-        return [
-            $this->field
-        ];
+        $reflection = (new ReflectionClass($this));
+        return Collection::make($reflection->getProperties(ReflectionProperty::IS_PUBLIC))
+            ->map(fn(ReflectionProperty $prop) => $prop->getValue($this))
+            ->values()
+            ->toArray();
     }
-
 }

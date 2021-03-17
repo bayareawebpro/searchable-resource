@@ -10,7 +10,7 @@ use BayAreaWebPro\SearchableResource\Contracts\ValidatableQuery;
 
 class MockUserQuery extends AbstractQuery implements ConditionalQuery, ValidatableQuery
 {
-    protected string $field = 'search';
+    public string $field = 'search';
 
     public function __invoke(Builder $builder): void
     {

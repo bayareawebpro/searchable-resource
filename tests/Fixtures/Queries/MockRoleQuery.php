@@ -9,7 +9,7 @@ use BayAreaWebPro\SearchableResource\Contracts\ValidatableQuery;
 
 class MockRoleQuery extends AbstractQuery implements ConditionalQuery, ValidatableQuery
 {
-    protected string $field = 'role';
+    public string $field = 'role';
     protected string $attribute = 'role';
 
     public function __invoke(Builder $builder): void
