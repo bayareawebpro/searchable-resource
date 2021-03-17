@@ -2,18 +2,22 @@
 
 namespace BayAreaWebPro\SearchableResource;
 
-use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Http\{
     Request,
     JsonResponse,
     Resources\Json\JsonResource
 };
 use Illuminate\Database\Eloquent\{
-    Builder,
-    Collection as EloquentCollection
+    Collection as EloquentCollection,
+    Builder
 };
-use Illuminate\Support\{Arr, Collection, Traits\Macroable};
+use Illuminate\Support\{
+    Arr,
+    Collection,
+    Traits\Macroable
+};
 use Illuminate\Contracts\{
+    Validation\Factory as Validator,
     Support\Arrayable,
     Support\Responsable,
     Pagination\Paginator
@@ -35,7 +39,11 @@ use BayAreaWebPro\SearchableResource\Concerns\{
     Optional,
     Labeled,
     Withable,
-    Whenable};
+    Whenable
+};
+
+use Illuminate\Validation\ValidationException;
+use Symfony\Component\HttpFoundation\Response;
 
 class SearchableBuilder implements Responsable, Arrayable
 {
@@ -52,112 +60,42 @@ class SearchableBuilder implements Responsable, Arrayable
     use Whenable;
     use Labeled;
 
-    protected Request $request;
-    protected Builder $query;
-
-    /**
-     * Default Pagination Count
-     * @var int
-     */
-    protected int $paginate;
-
-    /**
-     * Allowed Orderable Attributes
-     * @var array
-     */
-    protected array $orderable = [];
-
-    /**
-     * Default Orderable Attribute
-     * @var string
-     */
-    protected string $order_by = 'id';
-
-    /**
-     * Default Sort Direction
-     * @var string
-     */
-    protected string $sort = 'desc';
-
-    /**
-     * Should use Labels
-     * @var bool
-     */
-    protected bool $labeled = false;
-
-    /**
-     * Appendable Attributes
-     * @var array
-     */
-    protected array $appendable = [];
-
-    /**
-     * Select Columns
-     * @var array
-     */
-    protected array $select = ['*'];
-
-    /**
-     * Allowed Orderable Attributes
-     * @var string
-     */
-    protected string $resource = JsonResource::class;
-
-    /**
-     * Options Formatter
-     * @var FormatsOptions
-     */
-    protected FormatsOptions $formatter;
-
-    /**
-     * With Additional Data in Response
-     * @var array
-     */
-    protected array $with = [];
-
-    /**
-     * Additional Options
-     * @var array
-     */
-    protected array $options = [];
-
-    /**
-     * Request Fields Included in Response Query State.
-     * @var array
-     */
-    protected array $fields = [];
-
-    /**
-     * Validation Rules.
-     * @var array
-     */
-    protected array $rules = [];
-
-    /**
-     * Validation Data.
-     * @var array
-     */
-    protected array $validated = [];
-
-    /**
-     * Queries.
-     * @var Collection
-     */
-    protected Collection $queries;
-
     /**
      * @var Paginator|EloquentCollection
      */
     protected $result;
+
+    protected string $resource = JsonResource::class;
+    protected bool $labeled = false;
+    protected int $paginate;
+    protected array $orderable = [];
+    protected string $order_by = 'id';
+    protected string $sort = 'desc';
+
+    protected array $select = ['*'];
+    protected array $appendable = [];
+    protected array $validated = [];
+    protected array $options = [];
+    protected array $fields = [];
+    protected array $rules = [];
+    protected array $with = [];
+
+    protected FormatsOptions $formatter;
+    protected Collection $queries;
+    protected Validator $validator;
+    protected Request $request;
+    protected Builder $query;
+
 
     /**
      * SearchableResource constructor.
      * @param Request $request
      * @param Builder $query
      */
-    public function __construct(Request $request, Builder $query)
+    public function __construct(Request $request, Validator $validator, Builder $query)
     {
         $this->queries = Collection::make();
+        $this->validator = $validator;
         $this->request = $request;
         $this->query = $query;
     }
@@ -440,7 +378,13 @@ class SearchableBuilder implements Responsable, Arrayable
      */
     protected function validateRequest(): void
     {
-        $this->validated = $this->request->validate($this->compileRules());
+        $validator = $this->validator->make($this->request->all(), $this->compileRules());
+
+        if ($validator->fails()) {
+            throw ValidationException::withMessages($validator->errors()->messages())->redirectTo($this->request->path());
+        }
+
+        $this->validated = $validator->validated();
     }
 
     /**
