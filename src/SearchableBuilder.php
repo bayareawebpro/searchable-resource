@@ -202,7 +202,7 @@ class SearchableBuilder implements Responsable, Arrayable
      */
     public function getPage(): int
     {
-        return data_get($this->validated, 'page', 1);
+        return $this->getParameter('page', 1);
     }
 
     /**
@@ -210,7 +210,7 @@ class SearchableBuilder implements Responsable, Arrayable
      */
     public function getSearch(): ?string
     {
-        return data_get($this->validated, 'search');
+        return $this->getParameter('search');
     }
 
     /**

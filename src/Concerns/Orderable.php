@@ -34,8 +34,7 @@ trait Orderable{
      */
     public function getOrderBy(): string
     {
-
-        return data_get($this->validated, 'order_by',$this->order_by);
+        return $this->getParameter('order_by',$this->order_by);
     }
 
     /**
