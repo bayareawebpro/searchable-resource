@@ -42,7 +42,7 @@ trait Validatable{
         $validator = $this->validator->make($this->request->all(), $this->compileRules());
 
         if ($validator->fails()) {
-            throw ValidationException::withMessages($validator->errors()->messages())->redirectTo($this->request->path());
+            throw ValidationException::withMessages($validator->errors()->messages());
         }
 
         $this->validated = $validator->validated();
