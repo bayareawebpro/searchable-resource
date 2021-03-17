@@ -3,6 +3,7 @@
 namespace BayAreaWebPro\SearchableResource\Concerns;
 
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 
 trait Validatable{
 
@@ -30,5 +31,20 @@ trait Validatable{
             'order_by' => ['sometimes', 'string', Rule::in($this->getOrderableOptions()->all())],
             'per_page' => ['sometimes', 'numeric', Rule::in($this->getPerPageOptions()->all())],
         ]);
+    }
+
+    /**
+     * Validate the request.
+     * @throws \Illuminate\Validation\ValidationException
+     */
+    protected function validateRequest(): void
+    {
+        $validator = $this->validator->make($this->request->all(), $this->compileRules());
+
+        if ($validator->fails()) {
+            throw ValidationException::withMessages($validator->errors()->messages())->redirectTo($this->request->path());
+        }
+
+        $this->validated = $validator->validated();
     }
 }
