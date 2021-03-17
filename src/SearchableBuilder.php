@@ -7,6 +7,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 
+use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Traits\Macroable;
 use Illuminate\Contracts\Support\Arrayable;
@@ -417,11 +418,11 @@ class SearchableBuilder implements Responsable, Arrayable
             if ($query instanceof ConditionalQuery) {
                 if ($query->getApplies()) {
                     $this->query->tap($query);
-                    $this->fields([$query->getField()]);
+                    $this->fields(Arr::wrap($query->getFields()));
                 }
             } else {
                 $this->query->tap($query);
-                $this->fields([$query->getField()]);
+                $this->fields(Arr::wrap($query->getFields()));
             }
         });
     }

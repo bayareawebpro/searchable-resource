@@ -22,7 +22,7 @@ class MockOptionsQuery extends AbstractQuery implements ProvidesOptions
                     'value' => 'value2',
                 ],
             ],
-            $this->getField() => [
+            $this->field => [
                 'my_option'
             ],
         ];

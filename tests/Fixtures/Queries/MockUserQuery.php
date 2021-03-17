@@ -24,7 +24,7 @@ class MockUserQuery extends AbstractQuery implements ConditionalQuery, Validatab
     public function getRules(): array
     {
         return [
-            $this->getField() => 'sometimes|string|max:255',
+            $this->field => 'sometimes|string|max:255',
         ];
     }
 }

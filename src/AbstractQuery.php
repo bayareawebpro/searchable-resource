@@ -69,21 +69,14 @@ abstract class AbstractQuery implements InvokableQuery
     }
 
     /**
-     * Get the field name.
-     * @return string
+     * Get the field(s) name.
+     * @return array
      */
-    public function getField(): string
+    public function getFields(): array
     {
-        return $this->field;
-    }
-
-    /**
-     * Get the attribute name.
-     * @return string
-     */
-    public function getAttribute(): string
-    {
-        return $this->attribute;
+        return [
+            $this->field
+        ];
     }
 
 }
