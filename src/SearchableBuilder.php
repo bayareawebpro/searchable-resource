@@ -145,7 +145,9 @@ class SearchableBuilder implements Responsable, Arrayable
     protected function executePaginatorQuery(): Paginator
     {
         $this->query->orderBy($this->getOrderBy(), $this->getSort());
-        return $this->query->paginate($this->getPerPage(), $this->select)->appends($this->validated);
+        return $this->query->paginate($this->getPerPage(), $this->select)
+            ->appends($this->validated)
+            ->onEachSide(1);
     }
 
     /**
