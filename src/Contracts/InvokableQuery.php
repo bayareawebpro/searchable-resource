@@ -7,5 +7,5 @@ use Illuminate\Database\Eloquent\Builder;
 interface InvokableQuery
 {
     public function __invoke(Builder $builder): void;
-    public function getField(): string;
+    public function getFields(): array;
 }

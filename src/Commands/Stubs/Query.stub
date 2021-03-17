@@ -13,7 +13,7 @@ class DummyClass extends AbstractQuery implements ConditionalQuery, ValidatableQ
     /**
      * Request Field
      */
-    protected string $field = 'search';
+    public string $field = 'search';
 
     /**
      * Database Attribute / Column
@@ -26,7 +26,7 @@ class DummyClass extends AbstractQuery implements ConditionalQuery, ValidatableQ
      */
     public function __invoke(Builder $builder): void
     {
-        $builder->where($this->getAttribute(), $this->getValue());
+        parent::__invoke($builder);
     }
 
     /**
@@ -35,7 +35,7 @@ class DummyClass extends AbstractQuery implements ConditionalQuery, ValidatableQ
      */
     public function getApplies(): bool
     {
-        return $this->request->filled($this->getField());
+        return parent::getApplies();
     }
 
     /**
@@ -45,7 +45,7 @@ class DummyClass extends AbstractQuery implements ConditionalQuery, ValidatableQ
     public function getRules(): array
     {
         return [
-            //$this->getField() => 'sometimes|nullable|string',
+            //$this->field => ['sometimes','nullable','etc'],
         ];
     }
 
@@ -55,24 +55,30 @@ class DummyClass extends AbstractQuery implements ConditionalQuery, ValidatableQ
      */
     public function getOptions(): array
     {
-//        return [
-//            $this->getField() => [
-//                'value1',
-//                'value2',
-//            ],
-//        ];
-
         return [
-            $this->getField() => [
-                [
-                    'label' => 'Value 1',
-                    'value' => 'value1',
-                ],
-                [
-                    'label' => 'Value 2',
-                    'value' => 'value2',
-                ],
-            ],
+            //
         ];
+
+        // Example: UnFormatted
+        // return [
+        //     $this->field => [
+        //         'value1',
+        //         'value2',
+        //     ],
+        // ];
+
+        // Example: Formatted
+        // return [
+        //     $this->field => [
+        //         [
+        //             'label' => 'Value 1',
+        //             'value' => 'value1',
+        //         ],
+        //         [
+        //             'label' => 'Value 2',
+        //             'value' => 'value2',
+        //         ],
+        //     ],
+        // ];
     }
 }

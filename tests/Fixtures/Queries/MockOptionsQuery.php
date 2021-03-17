@@ -7,7 +7,7 @@ use BayAreaWebPro\SearchableResource\AbstractQuery;
 
 class MockOptionsQuery extends AbstractQuery implements ProvidesOptions
 {
-    protected string $field = 'option';
+    public string $field = 'option';
 
     public function getOptions(): array
     {
@@ -22,7 +22,7 @@ class MockOptionsQuery extends AbstractQuery implements ProvidesOptions
                     'value' => 'value2',
                 ],
             ],
-            $this->getField() => [
+            $this->field => [
                 'my_option'
             ],
         ];

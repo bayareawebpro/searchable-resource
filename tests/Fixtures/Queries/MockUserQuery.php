@@ -10,11 +10,11 @@ use BayAreaWebPro\SearchableResource\Contracts\ValidatableQuery;
 
 class MockUserQuery extends AbstractQuery implements ConditionalQuery, ValidatableQuery
 {
-    protected string $field = 'search';
+    public string $field = 'search';
 
     public function __invoke(Builder $builder): void
     {
-        $value = $this->getValue();
+        $value = $this->getValue($this->field);
         $builder->where(fn(Builder $builder) => $builder
             ->where('name', 'like', "%$value%")
             ->orWhere('email', 'like', "%$value%")
@@ -24,7 +24,7 @@ class MockUserQuery extends AbstractQuery implements ConditionalQuery, Validatab
     public function getRules(): array
     {
         return [
-            $this->getField() => 'sometimes|string|max:255',
+            $this->field => 'sometimes|string|max:255',
         ];
     }
 }
