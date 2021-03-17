@@ -26,7 +26,7 @@ trait Paginated{
      */
     public function getPerPage(): int
     {
-        return (int) ($this->request->get('per_page') ?? $this->paginate);
+        return (int) data_get($this->validated, 'per_page',$this->paginate);
     }
 
     /**
@@ -80,7 +80,7 @@ trait Paginated{
 
         if($this->request->filled('search')){
             $params = array_merge($params, [
-                'search'   => $this->request->get('search'),
+                'search'   => $this->getSearch()
             ]);
         }
 
