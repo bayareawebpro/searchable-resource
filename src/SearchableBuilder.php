@@ -12,10 +12,7 @@ use Illuminate\Database\Eloquent\{
     Builder,
     Collection as EloquentCollection
 };
-use Illuminate\Support\{
-    Collection,
-    Traits\Macroable
-};
+use Illuminate\Support\{Arr, Collection, Traits\Macroable};
 use Illuminate\Contracts\{
     Support\Arrayable,
     Support\Responsable,
@@ -415,10 +412,12 @@ class SearchableBuilder implements Responsable, Arrayable
         $this->queries->each(function (AbstractQuery $query) {
             if ($query instanceof ConditionalQuery) {
                 if ($query->getApplies()) {
+                    $query->set('parameterBag', Arr::only($this->validated, $query->getFields()));
                     $this->query->tap($query);
                     $this->fields($query->getFields());
                 }
             } else {
+                $query->set('parameterBag', Arr::only($this->validated, $query->getFields()));
                 $this->query->tap($query);
                 $this->fields($query->getFields());
             }
