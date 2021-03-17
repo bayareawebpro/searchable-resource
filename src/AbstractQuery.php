@@ -26,6 +26,12 @@ abstract class AbstractQuery implements InvokableQuery
     protected string $attribute = '';
 
     /**
+     * The validated data bag.
+     * @var array
+     */
+    protected array $parameterBag = [];
+
+    /**
      * Static Make Method
      * @return static
      */
@@ -76,7 +82,7 @@ abstract class AbstractQuery implements InvokableQuery
      */
     public function getValue(string $key, $fallback = null)
     {
-        return $this->request->get($key, $fallback);
+        return data_get($this->parameterBag, $key, $fallback);
     }
 
     /**
@@ -96,29 +102,35 @@ abstract class AbstractQuery implements InvokableQuery
      * Set a class property.
      * @param string $property
      * @param mixed $value
+     * @return self
      */
-    public function set(string $property, $value): void
+    public function set(string $property, $value): self
     {
         if(property_exists($this, $property)){
             $this->{$property} = $value;
         }
+        return $this;
     }
 
     /**
      * Set the field name.
      * @param string $name
+     * @return self
      */
-    public function field(string $name): void
+    public function field(string $name): self
     {
         $this->set('field',$name);
+        return $this;
     }
 
     /**
      * Set the attribute name.
      * @param string $name
+     * @return self
      */
-    public function attribute(string $name): void
+    public function attribute(string $name): self
     {
         $this->set('attribute',$name);
+        return $this;
     }
 }
