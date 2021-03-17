@@ -91,4 +91,34 @@ abstract class AbstractQuery implements InvokableQuery
             ->values()
             ->toArray();
     }
+
+    /**
+     * Set a class property.
+     * @param string $property
+     * @param mixed $value
+     */
+    public function set(string $property, $value): void
+    {
+        if(property_exists($this, $property)){
+            $this->{$property} = $value;
+        }
+    }
+
+    /**
+     * Set the field name.
+     * @param string $name
+     */
+    public function field(string $name): void
+    {
+        $this->set('field',$name);
+    }
+
+    /**
+     * Set the attribute name.
+     * @param string $name
+     */
+    public function attribute(string $name): void
+    {
+        $this->set('attribute',$name);
+    }
 }

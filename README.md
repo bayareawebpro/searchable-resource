@@ -19,18 +19,12 @@ composer require bayareawebpro/searchable-resource
 ### Basic Usage
 
 SearchableResources implement the `Responsable` interface which allows them to be 
-returned from controllers easily. 
+returned from controllers easily. It can also be used with blade.
 
 The ```make``` method accepts instances of Eloquent Builder.  
 
 ```php
-use App\User;
-use App\Post;
-
-use BayAreaWebPro\SearchableResource\SearchableResource;
-
 SearchableResource::make(User::query());
-SearchableResource::make(Post::forUser(request()->user())); 
 ```
 	
 ### Ordering and Sorting
@@ -174,7 +168,7 @@ SearchableResource::make(User::query())->resource(UserResource::class);
 
 Queries are expressed as invokable classes that extend the `AbstractQuery` class 
 which contains logic per request field.  Queries can apply to multiple attributes/columns
-but should pertain to a single input.  
+as well as multiple inputs for `orWhere` clauses.  
 
 `php artisan make:searchable NameQuery`
 
@@ -188,7 +182,7 @@ namespace App\Queries;
 use Illuminate\Database\Eloquent\Builder;
 use BayAreaWebPro\SearchableResource\AbstractQuery;
  
-class NameLikeQuery extends AbstractQuery
+class LikeQuery extends AbstractQuery
 {
     public string $field = 'search';
     protected string $attribute = 'name';
@@ -197,6 +191,21 @@ class NameLikeQuery extends AbstractQuery
         $builder->where($this->attribute, "like", "%{$this->getValue($this->field)}%");
     }
 }
+```
+```php
+SearchableResource::make(User::query())
+    ->query(
+        LikeQuery::make()
+            ->field('search')
+            ->attribute('last_name')
+    )
+    ->query(
+        SelectQuery::make()
+            ->field('role')
+            ->attribute('role')
+            ->options(['admin', 'customer'])
+     )
+;
 ```
 
 ### ConditionalQuery Contract
@@ -256,18 +265,25 @@ use BayAreaWebPro\SearchableResource\Contracts\ValidatableQuery;
 class ConditionalRoleQuery extends AbstractQuery implements ValidatableQuery
 {
 
-    public string $field = 'role';
+    public string $role = 'role';
+    public string $admins = 'only_admins';
+    
     protected string $attribute = 'role';
  
     public function __invoke(Builder $builder): void
     {
-        $builder->where($this->attribute, $this->getValue($this->field));
+        $builder->where($this->attribute, $this->getValue($this->admins) ?: $this->getValue($this->role));
     }
 
     public function getRules(): array
     {
         return [
-           $this->field => 'required|string|in:admin,editor,guest',
+           $this->role => [
+               'required'
+           ],
+           $this->admins => [
+               'sometimes'
+           ],
         ];
     }
 }
@@ -278,25 +294,6 @@ class ConditionalRoleQuery extends AbstractQuery implements ValidatableQuery
 Queries can provide options that will be appended to the request options 
 data by implementing the `ProvidesOptions` contract.  This method should return 
 a flat array of values that are injected into the response query options data.
-
-
-For example let's say we have a select field 
-query that implements it's own builder interface:
-
-```php
-use App\Queries\SelectQuery;
-
-SearchableResource::make(User::query())
-    ->query(
-        SelectQuery::make()
-            ->field('user_role') // Request Field
-            ->attribute('role')  // Table Column
-            ->default('user') 	 // Default Value
-            ->values([
-                'user', 'editor','admin' //Rule (in)
-            ])
-    );
-```
 
 ```php
 <?php declare(strict_types=1);
