@@ -120,6 +120,9 @@ SearchableResource::make(MockUser::query())
 Route::get('options', fn() => (
 SearchableResource::make(MockUser::query())
     ->labeled(request()->filled('formatted'))
+    ->options([
+        'additional' => ['value']
+    ])
     ->queries([
         MockOptionsQuery::class,
     ])

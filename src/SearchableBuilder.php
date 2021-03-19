@@ -286,7 +286,7 @@ class SearchableBuilder implements Responsable, Arrayable
     protected function compileQueryOptions(): void
     {
         $this->queries->whereInstanceOf(ProvidesOptions::class)->each(function (ProvidesOptions $query) {
-            $this->withOptions($query->getOptions());
+            $this->options($query->getOptions());
         });
     }
 
