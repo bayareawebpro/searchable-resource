@@ -34,6 +34,9 @@ SearchableResource::make(MockUser::query())
     ->fields([
         'name',
     ])
+    ->queryParams([
+        'test' => 'test',
+    ])
 ))->name('appendable');
 
 

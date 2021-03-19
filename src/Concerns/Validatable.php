@@ -44,8 +44,7 @@ trait Validatable{
         if ($validator->fails()) {
             throw ValidationException::withMessages($validator->errors()->messages());
         }
-
-        $this->validated = $validator->validated();
+        $this->queryParams($validator->validated());
     }
 
     /**
@@ -56,6 +55,6 @@ trait Validatable{
      */
     public function getParameter(string $parameter, $fallback = null)
     {
-        return data_get($this->validated, $parameter,$fallback);
+        return data_get($this->parameters, $parameter,$fallback);
     }
 }

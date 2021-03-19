@@ -19,6 +19,9 @@ class AppendableTest extends TestCase
                     'test' => true,
                 ],
             ],
+            'query' => [
+                'test' => 'test',
+            ],
         ], true);
     }
 

@@ -68,7 +68,7 @@ class SearchableBuilder implements Responsable, Arrayable
 
     protected array $select = ['*'];
     protected array $appendable = [];
-    protected array $validated = [];
+    protected array $parameters = [];
     protected array $options = [];
     protected array $fields = [];
     protected array $rules = [];
@@ -146,7 +146,7 @@ class SearchableBuilder implements Responsable, Arrayable
     {
         $this->query->orderBy($this->getOrderBy(), $this->getSort());
         return $this->query->paginate($this->getPerPage(), $this->select)
-            ->appends($this->validated)
+            ->appends($this->parameters)
             ->onEachSide(1);
     }
 
@@ -198,15 +198,29 @@ class SearchableBuilder implements Responsable, Arrayable
     }
 
     /**
-     * Get the options collection.
+     * Get Search Parameter value.
+     * @param array $query
+     * @return SearchableBuilder
      */
-    public function getPage(): int
+    public function queryParams(array $query): self
     {
-        return $this->getParameter('page', 1);
+        $this->parameters = array_merge($this->parameters, $query);
+        return $this;
     }
 
     /**
-     * Get Search Parameter
+     * With fields from the request appended to the query.
+     * @param array $requestFields
+     * @return $this
+     */
+    public function fields(array $requestFields): self
+    {
+        $this->fields = array_merge($this->fields, $requestFields);
+        return $this;
+    }
+
+    /**
+     * Get Search Parameter value.
      */
     public function getSearch(): ?string
     {
@@ -254,12 +268,12 @@ class SearchableBuilder implements Responsable, Arrayable
         $this->queries->each(function (AbstractQuery $query) {
             if ($query instanceof ConditionalQuery) {
                 if ($query->getApplies()) {
-                    $query->set('parameterBag', Arr::only($this->validated, $query->getFields()));
+                    $query->set('parameterBag', Arr::only($this->parameters, $query->getFields()));
                     $this->query->tap($query);
                     $this->fields($query->getFields());
                 }
             } else {
-                $query->set('parameterBag', Arr::only($this->validated, $query->getFields()));
+                $query->set('parameterBag', Arr::only($this->parameters, $query->getFields()));
                 $this->query->tap($query);
                 $this->fields($query->getFields());
             }
