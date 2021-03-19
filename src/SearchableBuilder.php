@@ -202,7 +202,7 @@ class SearchableBuilder implements Responsable, Arrayable
      * @param array $query
      * @return SearchableBuilder
      */
-    public function queryParams(array $query): self
+    public function withParams(array $query): self
     {
         $this->parameters = array_merge($this->parameters, $query);
         return $this;
