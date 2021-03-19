@@ -21,6 +21,14 @@ trait Paginated{
     }
 
     /**
+     * Get the current page value.
+     */
+    public function getPage(): int
+    {
+        return $this->getParameter('page', 1);
+    }
+
+    /**
      * Get the current paginator count.
      * @return int
      */
@@ -66,21 +74,16 @@ trait Paginated{
      */
     protected function formatQuery(?Paginator $paginator = null): array
     {
-        $params = array_merge($this->request->only($this->fields), [
+        $params = array_merge($this->parameters, $this->request->only($this->fields), [
             'order_by' => $this->getOrderBy(),
             'sort'     => $this->getSort(),
+            'search'   => $this->getSearch()
         ]);
 
         if($paginator){
             $params = array_merge($params, [
                 'page'     => $paginator->currentPage(),
                 'per_page' => $this->getPerPage(),
-            ]);
-        }
-
-        if($this->request->filled('search')){
-            $params = array_merge($params, [
-                'search'   => $this->getSearch()
             ]);
         }
 
