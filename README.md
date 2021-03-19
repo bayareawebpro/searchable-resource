@@ -81,6 +81,9 @@ SearchableResource::make(User::query())
     ->params([
        'my_filter_key' => 'my_default'
     ])
+    ->options([
+       'my_filter_key' => ['my_default', 'option2', 'option3']
+    ])
     ->with([
         'my_key' => true
     ])
