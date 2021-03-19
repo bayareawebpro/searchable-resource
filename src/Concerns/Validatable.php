@@ -44,7 +44,7 @@ trait Validatable{
         if ($validator->fails()) {
             throw ValidationException::withMessages($validator->errors()->messages());
         }
-        $this->withParams($validator->validated());
+        $this->params($validator->validated());
     }
 
     /**
