@@ -31,10 +31,10 @@ SearchableResource::make(MockUser::query())
     ->appendable([
         'test',
     ])
-    ->fields([
-        'name',
+    ->rules([
+        'name' => 'sometimes|string',
     ])
-    ->queryParams([
+    ->params([
         'test' => 'test',
     ])
 ))->name('appendable');
@@ -120,6 +120,9 @@ SearchableResource::make(MockUser::query())
 Route::get('options', fn() => (
 SearchableResource::make(MockUser::query())
     ->labeled(request()->filled('formatted'))
+    ->options([
+        'additional' => ['value']
+    ])
     ->queries([
         MockOptionsQuery::class,
     ])

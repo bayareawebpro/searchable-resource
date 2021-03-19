@@ -12,8 +12,9 @@ class OptionsTest extends TestCase
             ->assertJson([
                 'options' => [
                     'option' => ['my_option'],
+                    'additional' => ['value']
                 ],
-            ]);
+            ], true);
     }
 
     public function test_will_format_options_from_queries()
@@ -21,6 +22,12 @@ class OptionsTest extends TestCase
         $this->json('get', route('options', ['formatted' => true]))
             ->assertJson([
                 'options' => [
+                    'additional' => [
+                        [
+                            'label' => 'value',
+                            'value' => 'value',
+                        ],
+                    ],
                     'untouched' => [
                         [
                             'label' => 'Value 1',
@@ -38,6 +45,6 @@ class OptionsTest extends TestCase
                         ],
                     ],
                 ],
-            ]);
+            ], true);
     }
 }

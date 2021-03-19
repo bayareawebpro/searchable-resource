@@ -202,7 +202,7 @@ class SearchableBuilder implements Responsable, Arrayable
      * @param array $query
      * @return SearchableBuilder
      */
-    public function queryParams(array $query): self
+    public function params(array $query): self
     {
         $this->parameters = array_merge($this->parameters, $query);
         return $this;
@@ -213,7 +213,7 @@ class SearchableBuilder implements Responsable, Arrayable
      * @param array $requestFields
      * @return $this
      */
-    public function fields(array $requestFields): self
+    protected function fields(array $requestFields): self
     {
         $this->fields = array_merge($this->fields, $requestFields);
         return $this;
@@ -286,7 +286,7 @@ class SearchableBuilder implements Responsable, Arrayable
     protected function compileQueryOptions(): void
     {
         $this->queries->whereInstanceOf(ProvidesOptions::class)->each(function (ProvidesOptions $query) {
-            $this->withOptions($query->getOptions());
+            $this->options($query->getOptions());
         });
     }
 

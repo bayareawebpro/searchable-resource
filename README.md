@@ -75,11 +75,14 @@ SearchableResource::make(User::query())
         'name', 'email', 'role',
         'created_at', 'updated_at',
     ])
-    ->fields([
-       'my_filter_key'
-    ])
     ->rules([
-       'my_filter_key' => 'required'
+       'my_filter_key' => 'required|string'
+    ])
+    ->params([
+       'my_filter_key' => 'my_default'
+    ])
+    ->options([
+       'my_filter_key' => ['my_default', 'option2', 'option3']
     ])
     ->with([
         'my_key' => true
