@@ -198,13 +198,18 @@ class SearchableBuilder implements Responsable, Arrayable
     }
 
     /**
-     * Get Search Parameter value.
-     * @param array $query
+     * Set the default query parameter values.
+     * @param array $parameters
      * @return SearchableBuilder
      */
-    public function params(array $query): self
+    public function params(array $parameters): self
     {
-        $this->parameters = array_merge($this->parameters, $query);
+        $this->parameters = array_merge($this->parameters, $parameters);
+        foreach ($parameters as $field => $value){
+            if(!$this->request->filled($field)){
+                $this->request->merge([$field => $value]);
+            }
+        }
         return $this;
     }
 
