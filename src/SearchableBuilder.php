@@ -206,7 +206,7 @@ class SearchableBuilder implements Responsable, Arrayable
     {
         $this->parameters = array_merge($this->parameters, $parameters);
         foreach ($parameters as $field => $value){
-            if(!$this->request->filled($field)){
+            if(!$this->request->has($field)){
                 $this->request->merge([$field => $value]);
             }
         }
