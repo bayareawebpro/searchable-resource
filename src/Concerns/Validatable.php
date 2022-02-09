@@ -7,21 +7,12 @@ use Illuminate\Validation\ValidationException;
 
 trait Validatable{
 
-    /**
-     * Add validation rules.
-     * @param array $rules
-     * @return $this
-     */
     public function rules(array $rules): self
     {
         $this->rules = array_merge($this->rules, $rules);
         return $this;
     }
 
-    /**
-     * Compiled Validation Rules
-     * @return array
-     */
     public function compileRules(): array
     {
         return array_merge($this->rules, [
@@ -33,26 +24,11 @@ trait Validatable{
         ]);
     }
 
-    /**
-     * Validate the request.
-     * @throws \Illuminate\Validation\ValidationException
-     */
     protected function validateRequest(): void
     {
-        $validator = $this->validator->make($this->request->all(), $this->compileRules());
-
-        if ($validator->fails()) {
-            throw ValidationException::withMessages($validator->errors()->messages());
-        }
-        $this->params($validator->validated());
+        $this->params($this->request->validate($this->compileRules()));
     }
 
-    /**
-     * Get Validated Parameter
-     * @param string $parameter
-     * @param mixed $fallback
-     * @return array|mixed
-     */
     public function getParameter(string $parameter, $fallback = null)
     {
         return data_get($this->parameters, $parameter,$fallback);

@@ -8,21 +8,11 @@ use Illuminate\Support\Str;
 
 class OptionsFormatter implements FormatsOptions
 {
-    /**
-     * @param string $key
-     * @param Collection $options
-     * @return Collection
-     */
     public function __invoke(string $key, Collection $options): Collection
     {
         return $this->baseOptions($key, $options);
     }
 
-    /**
-     * @param string $key
-     * @param Collection $options
-     * @return Collection
-     */
     protected function baseOptions(string $key, Collection $options): Collection
     {
         if(is_array($options->first())){
@@ -37,11 +27,6 @@ class OptionsFormatter implements FormatsOptions
         return $this->literal($options);
     }
 
-    /**
-     * @param Collection $options
-     * @param string $append
-     * @return Collection
-     */
     protected function append(Collection $options, string $append): Collection
     {
         return $options->map(fn($value, $key) => [
@@ -50,11 +35,6 @@ class OptionsFormatter implements FormatsOptions
         ]);
     }
 
-    /**
-     * @param Collection $options
-     * @param string $label
-     * @return Collection
-     */
     protected function nullable(Collection $options, string $label = 'All'): Collection
     {
         return $options->prepend([
@@ -63,10 +43,6 @@ class OptionsFormatter implements FormatsOptions
         ]);
     }
 
-    /**
-     * @param Collection $options
-     * @return Collection
-     */
     protected function titleCase(Collection $options): Collection
     {
         return $options->map(fn($value, $key) => [
@@ -75,10 +51,6 @@ class OptionsFormatter implements FormatsOptions
         ]);
     }
 
-    /**
-     * @param Collection $options
-     * @return Collection
-     */
     protected function literal(Collection $options): Collection
     {
         return $options->map(fn($value, $key) => [

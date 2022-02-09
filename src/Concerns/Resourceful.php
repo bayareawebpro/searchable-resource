@@ -1,14 +1,13 @@
 <?php declare(strict_types=1);
 
 namespace BayAreaWebPro\SearchableResource\Concerns;
+
 use Illuminate\Http\Resources\Json\JsonResource;
 
 trait Resourceful{
 
     /**
      * Use Resource
-     * @param string $resource
-     * @return $this
      */
     public function resource(string $resource): self
     {
