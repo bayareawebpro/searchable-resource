@@ -8,53 +8,31 @@ use Illuminate\Support\Collection;
 
 trait Optional
 {
-
-    /**
-     * Get the options collection.
-     */
     public function getOptions(): Collection
     {
         return $this->buildOptions();
     }
-    /**
-     * With additional options.
-     * @param array $additional
-     * @return $this
-     */
+
     public function options(array $additional): self
     {
         $this->options = array_merge($this->options, $additional);
         return $this;
     }
 
-    /**
-     * @param FormatsOptions $instance
-     * @return $this
-     */
-    public function useFormatter(FormatsOptions $instance)
+    public function useFormatter(FormatsOptions $instance): self
     {
         $this->formatter = $instance;
         return $this;
     }
 
-    /**
-     * Format Options
-     * @param string $key
-     * @param Collection $options
-     * @return Collection
-     */
     protected function formatOptions(string $key, Collection $options): Collection
     {
-        if(isset($this->formatter)){
-            return app()->call($this->formatter, compact('key','options'));
+        if (isset($this->formatter)) {
+            return app()->call($this->formatter, compact('key', 'options'));
         }
-        return app()->call(new OptionsFormatter, compact('key','options'));
+        return app()->call(new OptionsFormatter, compact('key', 'options'));
     }
 
-    /**
-     * Get the options for queries.
-     * @return Collection
-     */
     protected function buildOptions(): Collection
     {
         if ($this->labeled) {
@@ -68,7 +46,7 @@ trait Optional
                 'sort'     => $this->formatOptions('sort', $this->getSortOptions())->all(),
                 'per_page' => $this->formatOptions('per_page', $this->getPerPageOptions())->all(),
             ], $options));
-        }else{
+        } else {
 
             $options = Collection::make(array_merge([
                 'order_by' => $this->getOrderableOptions()->all(),
@@ -77,7 +55,7 @@ trait Optional
             ], $this->options));
         }
 
-        if(!$this->shouldPaginate()){
+        if (!$this->shouldPaginate()) {
             return $options->forget('per_page');
         }
         return $options;

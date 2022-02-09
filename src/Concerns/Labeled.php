@@ -2,13 +2,8 @@
 
 namespace BayAreaWebPro\SearchableResource\Concerns;
 
-trait Labeled{
-
-    /**
-     * Use labels for options.
-     * @param bool $enabled
-     * @return $this
-     */
+trait Labeled
+{
     public function labeled(bool $enabled = true): self
     {
         $this->labeled = $enabled;

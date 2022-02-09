@@ -2,13 +2,8 @@
 
 namespace BayAreaWebPro\SearchableResource\Concerns;
 
-trait Withable{
-
-    /**
-     * With additional data.
-     * @param array $data
-     * @return $this
-     */
+trait Withable
+{
     public function with(array $data): self
     {
         $this->with = array_merge($this->with, $data);

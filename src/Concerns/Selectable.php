@@ -3,12 +3,6 @@
 namespace BayAreaWebPro\SearchableResource\Concerns;
 
 trait Selectable{
-
-    /**
-     * Select Columns
-     * @param array $columns
-     * @return $this
-     */
     public function select(array $columns = ['*']): self
     {
         $this->select = $columns;

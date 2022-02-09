@@ -4,7 +4,6 @@ namespace BayAreaWebPro\SearchableResource;
 
 use Illuminate\Http\{
     Request,
-    JsonResponse,
     Resources\Json\JsonResource
 };
 use Illuminate\Database\Eloquent\{
@@ -59,7 +58,7 @@ class SearchableBuilder implements Responsable, Arrayable
     use Whenable;
     use Labeled;
 
-    protected string $resource = JsonResource::class;
+    protected string $resource = GenericResource::class;
     protected int $paginate;
     protected bool $labeled = false;
     protected array $orderable = [];
@@ -80,17 +79,11 @@ class SearchableBuilder implements Responsable, Arrayable
     protected Request $request;
     protected Builder $query;
 
-
     /**
      * @var Paginator|EloquentCollection
      */
     protected $result;
 
-    /**
-     * SearchableResource constructor.
-     * @param Request $request
-     * @param Builder $query
-     */
     public function __construct(Request $request, Validator $validator, Builder $query)
     {
         $this->queries = Collection::make();
@@ -99,11 +92,6 @@ class SearchableBuilder implements Responsable, Arrayable
         $this->query = $query;
     }
 
-    /**
-     * Static Make Method
-     * @param Builder $query
-     * @return static
-     */
     public static function make(Builder $query): self
     {
         return app(static::class, [
@@ -111,11 +99,6 @@ class SearchableBuilder implements Responsable, Arrayable
         ]);
     }
 
-    /**
-     * Apply Invokable Queries
-     * @param array $queries
-     * @return $this
-     */
     public function queries(array $queries): self
     {
         foreach ($queries as $query) {
@@ -128,20 +111,12 @@ class SearchableBuilder implements Responsable, Arrayable
         return $this;
     }
 
-    /**
-     * Add an Invokable Query.
-     * @param AbstractQuery $query
-     * @return $this
-     */
     public function query(AbstractQuery $query): self
     {
         $this->queries->push($query);
         return $this;
     }
 
-    /**
-     * Execute queries and get the paginator instance.
-     */
     protected function executePaginatorQuery(): Paginator
     {
         $this->query->orderBy($this->getOrderBy(), $this->getSort());
@@ -150,36 +125,24 @@ class SearchableBuilder implements Responsable, Arrayable
             ->onEachSide(1);
     }
 
-    /**
-     * Execute queries and get the paginator instance.
-     */
     protected function executeQuery(): EloquentCollection
     {
         $this->query->orderBy($this->getOrderBy(), $this->getSort());
         return $this->query->get($this->select);
     }
 
-    /**
-     * Format the paginated resource.
-     */
     protected function formatPaginatedResource(): JsonResource
     {
         return $this->resource::collection($this->appendAppendable($this->result->items()))
             ->additional($this->getPaginatedAdditional($this->result));
     }
 
-    /**
-     * Format the base resource.
-     */
     protected function formatBaseResource(): JsonResource
     {
         return $this->resource::collection($this->appendAppendable($this->result->all()))
             ->additional($this->getBaseAdditional());
     }
 
-    /**
-     * Get Additional Data for Base Queries
-     */
     protected function getBaseAdditional(): array
     {
         return array_merge([
@@ -189,7 +152,6 @@ class SearchableBuilder implements Responsable, Arrayable
     }
 
     /**
-     * Get the result collection or paginator.
      * @return Paginator|EloquentCollection
      */
     public function getItems()
@@ -197,11 +159,6 @@ class SearchableBuilder implements Responsable, Arrayable
         return $this->result;
     }
 
-    /**
-     * Set the default query parameter values.
-     * @param array $parameters
-     * @return SearchableBuilder
-     */
     public function params(array $parameters): self
     {
         $this->parameters = array_merge($this->parameters, $parameters);
@@ -213,30 +170,17 @@ class SearchableBuilder implements Responsable, Arrayable
         return $this;
     }
 
-    /**
-     * With fields from the request appended to the query.
-     * @param array $requestFields
-     * @return $this
-     */
     protected function fields(array $requestFields): self
     {
         $this->fields = array_merge($this->fields, $requestFields);
         return $this;
     }
 
-    /**
-     * Get Search Parameter value.
-     */
     public function getSearch(): ?string
     {
         return $this->getParameter('search');
     }
 
-    /**
-     * Execute Query and Gather Items.
-     * @return $this
-     * @throws \Illuminate\Validation\ValidationException
-     */
     public function execute(): self
     {
         $this->compileQueryRules();
@@ -247,9 +191,6 @@ class SearchableBuilder implements Responsable, Arrayable
         return $this;
     }
 
-    /**
-     * Compile & Apply Query Rules
-     */
     protected function compileQueryRules(): void
     {
         $this->queries->each(function (AbstractQuery $query) {
@@ -265,9 +206,6 @@ class SearchableBuilder implements Responsable, Arrayable
         });
     }
 
-    /**
-     * Compile & Apply Query Statements
-     */
     protected function compileQueryStatements(): void
     {
         $this->queries->each(function (AbstractQuery $query) {
@@ -285,9 +223,6 @@ class SearchableBuilder implements Responsable, Arrayable
         });
     }
 
-    /**
-     * Compile Query Options
-     */
     protected function compileQueryOptions(): void
     {
         $this->queries->whereInstanceOf(ProvidesOptions::class)->each(function (ProvidesOptions $query) {
@@ -295,12 +230,6 @@ class SearchableBuilder implements Responsable, Arrayable
         });
     }
 
-    /**
-     * Get the response representation of the data.
-     * @param Request|null $request
-     * @return JsonResponse
-     * @throws \Illuminate\Validation\ValidationException
-     */
     public function toResponse($request = null): Response
     {
         $this->request = $request ?: $this->request;
@@ -318,11 +247,6 @@ class SearchableBuilder implements Responsable, Arrayable
             ->toResponse($this->request);
     }
 
-    /**
-     * Get the array representation of the data.
-     * @return array
-     * @throws \Illuminate\Validation\ValidationException
-     */
     public function toArray()
     {
         $this->execute();

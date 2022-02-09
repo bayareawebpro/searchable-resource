@@ -2,18 +2,14 @@
 
 namespace BayAreaWebPro\SearchableResource;
 
+use Illuminate\Support\ServiceProvider;
 use BayAreaWebPro\SearchableResource\Commands\MakeQueryCommand;
 use BayAreaWebPro\SearchableResource\Commands\MakeSearchableCommand;
-use Illuminate\Support\ServiceProvider;
 
 class SearchableResourceServiceProvider extends ServiceProvider
 {
-    /**
-     * Bootstrap the application services.
-     */
     public function boot()
     {
-
          $this->loadTranslationsFrom(__DIR__.'/../lang', 'searchable-resource');
 
         if ($this->app->runningInConsole()) {
@@ -33,19 +29,12 @@ class SearchableResourceServiceProvider extends ServiceProvider
         }
     }
 
-    /**
-     * Register the application services.
-     */
     public function register()
     {
         $this->mergeConfigFrom(__DIR__.'/../config/config.php', 'searchable-resource');
         $this->app->bind('searchable-resource', SearchableBuilder::class);
     }
 
-    /**
-     * Get the services provided by the provider.
-     * @return array
-     */
     public function provides()
     {
         return ['searchable-resource'];
